@@ -60,6 +60,3 @@ KMLData = prepareKMLFile(args.city.title(), args.country.title(), data)
 # OneNote
 print("Let's insert page in OneNote")
 insertPage(args.city, args.country, prepareOneNoteContent(args.city, args.country, data, KMLData))
-
-
-
