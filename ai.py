@@ -7,14 +7,14 @@ from openai_functions import Conversation
 
 openai.api_key = os.environ['OPENAI_API_KEY']
 
-def planner(city, country, pages="https://www.tripadvisor.com, https://www.thecrazytourist.com", min : int = 2, max : int = 3, home : str = "Barcelona") :
+def planner(city, country, pages="https://www.tripadvisor.com, https://www.thecrazytourist.com", max : int = 20, home : str = "Barcelona") :
 
     print("Let's plan trip to " + city.title() + " in " + country.title())
 
     conversation = Conversation()
 
     @conversation.add_function()
-    def getPlacesOfInterest(city: str, country: str, pages: str, min : int, max : int, home : str) -> dict:
+    def getPlacesOfInterest(city: str, country: str, pages: str, max : int, home : str) -> dict:
 
         """Get touristic places in a city and country.
 
@@ -22,7 +22,6 @@ def planner(city, country, pages="https://www.tripadvisor.com, https://www.thecr
             city (str): The city, e.g., Barcelona
             country (str): The country to use, e.g., Spain
             pages (str): The pages where to look attractions for, e.g. https://www.thecrazytourist.com
-            min (integer): Minimum number of returned attractions, e.g. 5
             max (integer): Maximum number of returned attractions, e.g. 10
             home (str): Home city for driving directions, e.g. Barcelona
         """
@@ -31,7 +30,6 @@ def planner(city, country, pages="https://www.tripadvisor.com, https://www.thecr
             "city": city,
             "country": country,
             "pages": pages,
-            "min": min,
             "max": max,
             "home": home
         }
@@ -40,7 +38,7 @@ def planner(city, country, pages="https://www.tripadvisor.com, https://www.thecr
                 Please list the most important and popular tourist attractions.
                 During your search use recommendations from [pages].
                 Provide name, short description, link to google maps, link to google and link to wikipedia. {{places}}
-                Return minimum {min} atractions but no more than {max}.
+                Return maximum  {max} attractions.
                 Provide links to {pages} you used to find information.
                 Return as HTML with following structure (do not add code snippet):
                 <!DOCTYPE html>
@@ -77,6 +75,16 @@ def planner(city, country, pages="https://www.tripadvisor.com, https://www.thecr
                             type="text/text" />
                     </body>
                 </html>
-               """.format(city = city, country = country, pages = pages, home = home, min = min, max = max)
+               """.format(city = city, country = country, pages = pages, home = home, max = max)
 
-    return conversation.ask(prompt)
+    data =  conversation.ask(prompt)
+
+    print(data)
+
+    if data.count("<html>") > 1:
+
+        m = re.search('(<!DOCTYPE html>.+</html>).', data, flags = re.S)
+        if m is not None:
+            data = m.group(0)
+
+    return data

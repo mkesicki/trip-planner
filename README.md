@@ -23,7 +23,6 @@ positional arguments:
 
 optional arguments:
   -h, --help         show this help message and exit
-  --min MIN          Minimum number of returned attractions, e.g. 5. Default 20
   --max MAX          Maximum number of returned attractions, e.g. 10. Default 20
   --country COUNTRY  Optional country. Default Spain
   --home HOME        Optional home city, it is used to find direction to selected city. Default Barcelona

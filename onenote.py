@@ -22,10 +22,6 @@ def get_token():
 
 def prepareOneNoteContent(city : str, country : str, data : str, kml : str) -> str :
 
-    if data.count("<html>") > 1:
-        m = re.search('(<!DOCTYPE html>.+<\/html>).', data)
-        data = m.group(0)
-
     wikiloc = {
         "placeLoop" : "https://www.wikiloc.com/wikiloc/map.do?place="+ city + "&page=1&act=1%2C43%2C57%2C2%2C47%2C144%2C135&sto=4&loop=1",
         "placeNoLoop" : "https://www.wikiloc.com/wikiloc/map.do?place="+ city + "&page=1&act=1%2C43%2C57%2C2%2C47%2C144%2C135&sto=4&loop=0",
