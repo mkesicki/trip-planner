@@ -73,14 +73,16 @@ def insertPage(city, country, page):
 
     print("Check if page exists")
 
-    query = (city + " " + country).title()
+    query = (city + " " + country).tolower()
 
     response = requests.get('https://graph.microsoft.com/v1.0/me/onenote/pages?search="'+ query +'"&select=title,id', headers = headers)
 
     # check if page exists
     for title in response.json()["value"]:
 
-        if title["title"] == query or title["title"] == "[V] " + query:
+        pageTitle = title["title"].tolower()
+
+        if pageTitle == query or pageTitle == "[V] " + query or pageTitle == "[V] " + city.tolower():
             print("Page for {query} already exists : [{id}]. Will not add new one.".format(query = query.replace(" ", " in "), id = title["id"]))
 
             return

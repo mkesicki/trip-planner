@@ -14,9 +14,11 @@ def getPlacesFromHTML(city : str, country : str, content : str) -> list:
             {
                 "name": place.find_all("dl", class_="name")[0].text + " " + city + ", " + country,
                 "description": place.find_all("dt", class_="description")[0].text + " Links: <br />"
-                     + place.find_all("span", class_="wiki")[0].find_all("a", href=True)[0].get("href") + " &amp; "
-                     + " " + place.find_all("span", class_="google")[0].find_all("a", href=True)[0].get("href") + " "
+                    + place.find_all("span", class_="wiki")[0].find_all("a", href=True)[0].get("href") + " &amp; "
+                    + " " + place.find_all("span", class_="google")[0].find_all("a", href=True)[0].get("href") + " "
             })
+
+    exit(1)
 
     return body
 
