@@ -18,8 +18,6 @@ def getPlacesFromHTML(city : str, country : str, content : str) -> list:
                     + " " + place.find_all("span", class_="google")[0].find_all("a", href=True)[0].get("href") + " "
             })
 
-    exit(1)
-
     return body
 
 def getGeocodeDetails(place : str) -> dict:
