@@ -37,7 +37,7 @@ def planner(city, country, max : int , home : str, pages : str = "https://www.tr
     prompt = """I want to visit {city} in {country}.
                 Please list the most important and popular tourist attractions.
                 During your search use recommendations from {pages}.
-                Provide name, short description, link to google and link to wikipedia. {{places}}
+                Provide name, short description, linkt to googleMaps, link to google and link to wikipedia. {{places}}
                 Return maximum {max} attractions.
                 Return as HTML with following structure (do not add code snippet):
                 <!DOCTYPE html>
@@ -57,7 +57,9 @@ def planner(city, country, max : int , home : str, pages : str = "https://www.tr
                                 <dl class="name"><b>{{place name}}</b></dl>
                                     <dt class="description"><i>{{place description}}</i></dt>
                                     <dt class="links">
-                                         <span class="map"><a href="https://www.google.com/maps?q={{place name}},{city},{country}">Google Maps</a></span> * <span class="google">{{ place linkGoogle}}</span> * <span class="wiki">{{ place linkWiki}}</span>
+                                         <span class="map"><a href="https://www.google.com/maps?q={{place name}},{city},{country}">Google Maps</a></span>
+                                           * <span class="google">{{ place linkGoogle}}</span>
+                                           * <span class="wiki">{{ place linkWiki}}</span>
                                     </dt>
                                 </dl>
                             </li>
