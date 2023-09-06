@@ -7,10 +7,10 @@ from openai_functions import Conversation
 
 openai.api_key = os.environ['OPENAI_API_KEY']
 
-conversation = Conversation()
+conversation = Conversation(model='gpt-3.5-turbo-16k')
 
 @conversation.add_function
-def getPlacesOfInterest(city: str, country: str, pages: str, max : int, home : str) -> dict:
+def getPlacesOfInterest(city: str, country: str, pages: str, max : int, min : int) -> dict:
 
         """Get touristic places in a city and country.
 
@@ -19,7 +19,8 @@ def getPlacesOfInterest(city: str, country: str, pages: str, max : int, home : s
             country (str): The country to use, e.g., Spain
             pages (str): The pages where to look attractions for, e.g. https://www.thecrazytourist.com
             max (integer): Maximum number of returned attractions, e.g. 10
-            home (str): Home city for driving directions, e.g. Barcelona
+            min (integer): Minimum number of returned attractions, e.g. 5
+
         """
 
         return {
@@ -27,77 +28,44 @@ def getPlacesOfInterest(city: str, country: str, pages: str, max : int, home : s
             "country": country,
             "pages": pages,
             "max": max,
-            "home": home
+            "min": min,
         }
 
-def planner(city, country, max : int , home : str, pages : str = "https://www.tripadvisor.com, https://www.thecrazytourist.com") :
+def planner(city, country, min: int, max : int , pages : str = "https://www.tripadvisor.com, https://www.thecrazytourist.com") :
 
     print("Let's plan trip to " + city.title() + " in " + country.title())
 
     prompt = """I want to visit {city} in {country}.
                 Please list the most important and popular tourist attractions.
                 During your search use recommendations from {pages}.
-                Provide name, short description, linkt to googleMaps, link to google and link to wikipedia. {{places}}
-                Return maximum {max} attractions.
-                Return as HTML with following structure (do not add code snippet):
-                <!DOCTYPE html>
-                <html>
-                    <head>
-                        <title>{{city}} {{country}}</title>
-                    </head>
-                    <body>
-                        <p><b>Mapa mia:</b></p>
-                        <div>&nbsp;</div>
-                        <p><b>Driving directions:</b></p>
-                        <div class="directions"><a href="https://www.google.com/maps/dir/{home}/{city}">Driving Directions from {home}</a></div>
-                        <div>&nbsp;</div>
-                        <p><b>Points of interest:</b></p>
-                        <ol class="places">
-                            <li class="place">
-                                <dl class="name"><b>{{place name}}</b></dl>
-                                    <dt class="description"><i>{{place description}}</i></dt>
-                                    <dt class="links">
-                                         <span class="map"><a href="https://www.google.com/maps?q={{place name}},{city},{country}">Google Maps</a></span>
-                                           * <span class="google">{{ place linkGoogle}}</span>
-                                           * <span class="wiki">{{ place linkWiki}}</span>
-                                    </dt>
-                                </dl>
-                            </li>
-                        <ol>
-                        <div>[REPLACE HERE]</div>
-                    </body>
-                </html>
-               """.format(city = city, country = country, home = home, max = max, pages = pages)
+                Provide name, short description. {{places}}
+                Return between {min} to {max} attractions.
+                Return as HTML with following structure:
+                <ol class="places">
+                    <li class="place">
+                        <dl class="name"><b>{{place name}}</b></dl>
+                            <dt class="description"><i>{{place description}}</i></dt>
+                            <dt class="links-{{counter}}"></dt>
+                        </dl>
+                    </li>
+                <ol>
+               """.format(city = city, country = country, min = min, max = max, pages = pages)
 
     data =  conversation.ask(prompt)
 
-    # sometimes reply is duplicated
-    if data.count("<html>") > 1:
+    # example of returned data -> for testing
 
-        m = re.search('(<!DOCTYPE html>.+</html>).', data, flags = re.S)
-        print("*** more than 1 html tag ***")
-        if m is not None:
-            data = m.group(0)
-
-    # removed this from prompt to see if it helps to get better results
-    pagesHTML = ""
-    for page in pages.split(","):
-         pagesHTML = pagesHTML + "<li class=\"page\"><a href=\"" + page + "\">" + page + "</a></li>"
-
-    insert = """
-        <div>&nbsp;</div>
-        <p><b>Reference pages:</b></p>
-        <ul class="pages">
-            {pagesHTML}
-        </ul>
-        <div class="wikiloc">&nbsp;</div>
-        <object
-            data-attachment="map.kml"
-            data="name:map"
-            type="text/text" />
-    """.format(pagesHTML = pagesHTML)
-    data = data.replace("<div>[REPLACE HERE]</div>", insert)
-
-    print(data)
+    #      data = """<ol class="places">
+    #     <li class="place">
+    #         <dl class="name"><b>Alcazaba</b></dl>
+    #         <dt class="description"><i>The Alcazaba is a medieval fortress in Almeria, Spain. It was built by the Moors in the 10th century and is one of the largest Muslim fortifications in Spain. The fortress offers panoramic views of the city and the Mediterranean Sea. Visitors can explore its impressive walls, towers, gardens, and courtyards.</i></dt>
+    #         <dt class="links-1"></dt>
+    #     </li>
+    #     <li class="place">
+    #         <dl class="name"><b>Cathedral of Almeria</b></dl>
+    #         <dt class="description"><i>The Cathedral of Almeria is a splendid example of Spanish Renaissance architecture. Built between the 16th and 18th centuries, it features a unique mix of Gothic, Renaissance, and Baroque styles. The cathedral houses beautiful chapels, a museum, and the tomb of the Catholic Monarchs. Its striking towers and ornate facade make it a must-visit attraction in Almeria.</i></dt>
+    #         <dt class="links-2"></dt>
+    #     </li>
+    # </ol>"""
 
     return data
