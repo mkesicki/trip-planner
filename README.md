@@ -9,7 +9,7 @@ Script requires 3 system variables:
 
     - OPENAI_API_KEY - OpenAI API key
     - Google_API_Key - Google Map API key
-    - OneNote_Section_Id - OneNote section to which add page
+    - OneNote_Section_Id - OneNote section Id to which add page
 
 
 ## Usage
