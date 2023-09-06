@@ -3,6 +3,7 @@ import webbrowser
 import easygui
 import time
 import os
+import pyperclip
 
 from utils import *
 
@@ -118,8 +119,9 @@ def insertPage(city, country, page):
 
     # manage map creation
     webbrowser.open("https://www.google.com/maps/d/mp?hl=en&authuser=0&state=create")
+    pyperclip.copy(query.title())
     time.sleep(20)
-    linkMyMap = easygui.enterbox("Please paste link to newly created map")
+    linkMyMap = easygui.enterbox("Please paste link to newly created map (name should be in clipboard)")
 
     if linkMyMap == None or linkMyMap == "":
 
