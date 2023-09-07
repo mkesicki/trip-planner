@@ -1,0 +1,29 @@
+[
+    {
+         "cars": [
+            {
+                "url": "https://www.doyouspain.com/index.htm"
+            }
+         ]
+    },
+    {
+        "flights": [
+            {
+            "url": "https://www.skyscanner.net/"
+            }
+        ]
+    },
+    {
+        "hotels": [
+            {
+            "url": "https://www.booking.com/"
+            }
+        ]
+    }, {
+        "trains": [
+            {
+            "url": "https://www.renfe.com/"
+            }
+        ]
+    }
+]

@@ -1,0 +1,83 @@
+<html>
+<head>
+    <title>Trip Planner</title>
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='main.css')}}"></link>
+</head>
+<body>
+    <div class="intro">
+        <h1>Please fill below form.</h1>
+        <p>Please remember to double check results</p>
+    </div>
+
+    <div id="error" class="error"></div>
+
+    <form action="/planner">
+        <div>
+            <label>Start of trip: <input type="datetime-local" name="start" id="startTime"/></label> - <label>End of trip: <input type="datetime-local" name="end" id="endTime"/></label>
+        </div>
+        <div><label>Is it round trip? <input type="checkbox" name="roundtrip" id="roundtrip" /></label></div>
+
+        <div class="transportType">
+            <div><label>Transport type start:
+                <select name="transportStart" id="transportStart">
+                    <option>Train</option>
+                    <option>Plane</option>
+                    <option>Car</option>
+
+                </select>
+                </label>
+            </div>
+
+            <div id="transportEndDiv"><label>Transport type end:
+                <select name="transportEnd" id="transportEnd">
+                    <option>Train</option>
+                    <option>Plane</option>
+                    <option>Car</option>
+                </select>
+                </label>
+            </div>
+        </div>
+
+            <dl>
+                <dt>
+                    <label> Beggining of the trip city: <input type="text" name="fromCity"></label>
+                </dt>
+                <dt><label for="fromCountry">Country:</label>
+                    <select id="fromCountry" name="country">
+                        {% for country  in countries %}
+                            <option value="{{ countries[country] }}" {% if country == "ES": %} selected="selected" {% endif %}>{{ countries[country] }}</option>
+                        {% endfor %}
+                    </select>
+                </dt>
+            </dl>
+
+            <dl>
+                <dt>
+                    <label> Finish of the trip city: <input type="text" name="toCity"></label>
+                </dt>
+                <dt><label for="toCountry">Country:</label>
+                    <select id="toCountry" name="country">
+                        {% for country  in countries %}
+                            <option value="{{ countries[country] }}" {% if country == "ES": %} selected="selected" {% endif %}>{{ countries[country] }}</option>
+                        {% endfor %}
+                    </select>
+                </dt>
+            </dl>
+
+            <div><label>Trip days: <input type="number" name="days" id="days" readonly="readonly" /></label></div>
+            <div><label>Nights to stay: <input type="number" name="nights" id="nights" readonly="readonly" /></label></div>
+
+        </div>
+
+        <div id="placesDiv" style="margin-top:10px;">
+            <div><input type="button" id="placesButton" name="placesButton" value="Add New Place" /></div>
+            <ul id="placesList"></ul>
+        </div>
+
+        <div><input type="submit" id="submit" name="submit" value="Search" disabled="disabled""/></div>
+
+    </form>
+    <script src="{{url_for('static', filename='main.js')}}"></script>
+    <script>updatedTime();</script>
+</body>
+</html>

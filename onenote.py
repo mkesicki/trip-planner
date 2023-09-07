@@ -33,6 +33,7 @@ Content-Type: text/html
 <!DOCTYPE html>
 <html>
     <head>
+        <meta charset="UTF-8">
         <title>{city} {country}</title>
     </head>
     <body>
@@ -41,7 +42,7 @@ Content-Type: text/html
     <p><b>Driving directions:</b></p>
         <div class="directions"><a href="https://www.google.com/maps/dir/{home}/{city}">Driving Directions from {home}</a></div>
         <div>&nbsp;</div>
-        <p><b>Points of interest:</b></p>""".format(city = city, country = country, home = home)
+        <p><b>Points of interest:</b></p>""".format(city = city.title(), country = country.title(), home = home.title())
 
     wikiloc = {
         "placeLoop" : "https://www.wikiloc.com/wikiloc/map.do?place="+ city + "&page=1&act=1%2C43%2C57%2C2%2C47%2C144%2C135&sto=4&loop=1",
@@ -120,7 +121,7 @@ def insertPage(city, country, page):
     # manage map creation
     webbrowser.open("https://www.google.com/maps/d/mp?hl=en&authuser=0&state=create")
     pyperclip.copy(query.title())
-    time.sleep(20)
+    time.sleep(15)
     linkMyMap = easygui.enterbox("Please paste link to newly created map (name should be in clipboard)")
 
     if linkMyMap == None or linkMyMap == "":
