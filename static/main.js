@@ -6,7 +6,7 @@ document.getElementById("roundtrip").addEventListener("click", function() {
     if (this.checked)  {
        document.getElementById("transportEndDiv").style.display = "none";
     } else {
-        document.getElementById("transportEndDiv").style.display = "block";
+        document.getElementById("transportEndDiv").style.display = "inline";
     }
 });
 
@@ -89,11 +89,9 @@ function updatedTime() {
 function setPlacesDivVisibility() {
 
     if (nights > 0) {
-
         document.getElementById("placesDiv").style.display = "block";
-
     } else {
-            document.getElementById("placesDiv").style.display = "none";
+        document.getElementById("placesDiv").style.display = "none";
     }
 }
 

@@ -1,0 +1,65 @@
+{
+    "cars": [
+        {
+            "url": "https://www.doyouspain.com/index.htm"
+
+        }
+    ],
+
+    "flights": [
+        {
+            "url" : "https://www.skyscanner.es/transporte/vuelos/{departure}/{arrival}/{dateFrom}/{dateBack}/",
+            "urlOneWay" : "https://www.skyscanner.es/transporte/vuelos/{departure}/{arrival}/{dateFrom}/",
+            "type" : "browser",
+            "company" : "NA",
+            "airportCode" : "IATA",
+            "dateFormat" : "%y%m%d",
+            "queryParams" : "?adultsv2={adults}&cabinclass=economy&childrenv2=&inboundaltsenabled=false&locale=en-GB&outboundaltsenabled=false&preferdirects=false&previousCultureSource=GEO_LOCATION&redirectedFrom=www.skyscanner.com&ref=home&rtn=1&stops=!twoPlusStops"
+        },
+        {
+            "url" : "https://tickets.vueling.com/???"
+        },
+        {
+            "url" : "https://wizzair.com/en-gb#/booking/select-flight/{departure}/{arrival}/{dateFrom}/{dateBack}/{adults}/0/0/null",
+            "urlOneWay" : "https://wizzair.com/en-gb#/booking/select-flight/{departure}/{arrival}/{dateFrom}/null/{adults}/0/0/null",
+            "type" : "browser",
+            "company" : "Wizzair",
+            "airportCode" : "IATA",
+            "dateFormat" : "%Y-%m-%d",
+            "queryParams" : ""
+        },
+        {
+            "url" : "https://www.kayak.es/flights/{departure}-{arrival}/{dateFrom}/{dateBack}/{adults}adults",
+            "urlOneWay" : "https://www.kayak.es/flights/{departure}-{arrival}/{dateFrom}/{addults}adults",
+            "type" : "browser",
+            "company" : "NA",
+            "airportCode" : "IATA",
+            "dateFormat" : "%Y-%m-%d",
+            "queryParams" : "?sort=bestflight_a&fs=stops=-2"
+        },
+        {
+            "url" : "https://www.google.com/travel/flights/???"
+        },
+        {
+            "url" : "https://www.ryanair.com/es/es/trip/flights/select?adults={adults}&teens=0&children=0&infants=0&dateOut={dateFrom}&dateIn={dateBack}&isConnectedFlight=false&isReturn=true&discount=0&promoCode=&originIata={departure}&destinationIata={arrival}&tpAdults={adults}&tpTeens=0&tpChildren=0&tpInfants=0&tpStartDate={dateFrom}&tpEndDate={dateBack}&tpDiscount=0&tpPromoCode=&tpOriginIata={departure}&tpDestinationIata={arrival}",
+            "urlOneWay" : "https://www.ryanair.com/es/es/trip/flights/select?adults={adults}&teens=0&children=0&infants=0&dateOut={dateFrom}&dateIn=&isConnectedFlight=false&discount=0&isReturn=false&promoCode=&originIata={departure}&destinationIata={arrival}&tpAdults={adults}&tpTeens=0&tpChildren=0&tpInfants=0&tpStartDate={dateFrom}&tpEndDate=&tpDiscount=0&tpPromoCode=&tpOriginIata={departure}&tpDestinationIata={arrival}}",
+            "type" : "browser",
+            "company" : "RayanAir",
+            "airportCode" : "IATA",
+            "dateFormat" : "%Y-%m-%d",
+            "queryParams" : ""
+        }
+    ],
+
+    "hotels": [
+        {
+        "url": "https://www.booking.com/"
+        }
+    ],
+
+    "trains": [
+        {
+        "url": "https://www.renfe.com/"
+        }
+    ]
+}
