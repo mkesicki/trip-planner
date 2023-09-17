@@ -52,7 +52,26 @@
             "queryParams" : "?sort=bestflight_a&fs=stops=-2"
         },
         {
-            "url" : "https://www.google.com/travel/flights/???"
+            "url" : "https://www.google.com/travel/flights",
+            "type": "parseWeb",
+            "company" : "Google",
+            "airportCode" : "IATA",
+            "dateFormat" : "%Y-%m-%d",
+            "params" : {
+                "cookiesAccept" : "/html/body/c-wiz/div/div/div/div[2]/div[1]/div[3]/div[1]/div[1]/form[2]/div/div/button/span",
+                "confirmAirportClass" : "yfemgb",
+                "departure" :  "//*[@id=\"i21\"]/div[1]/div/div/div[1]/div/div/input",
+                "arrival" : "/html/body/c-wiz[2]/div/div[2]/c-wiz/div[1]/c-wiz/div[2]/div[1]/div[1]/div[1]/div/div[2]/div[1]/div[4]/div/div/div[1]/div/div/input",
+                "dateFrom" : "/html/body/c-wiz[2]/div/div[2]/c-wiz/div[1]/c-wiz/div[2]/div[1]/div[1]/div[1]/div/div[2]/div[2]/div/div/div[1]/div/div/div[1]/div/div[1]/div/input",
+                "dateBack" : "/html/body/c-wiz[2]/div/div[2]/c-wiz/div[1]/c-wiz/div[2]/div[1]/div[1]/div[1]/div/div[2]/div[2]/div/div/div[1]/div/div/div[1]/div/div[2]/div/input",
+                "dateConfirm" : "/html/body/c-wiz[2]/div/div[2]/c-wiz/div[1]/c-wiz/div[2]/div[1]/div[1]/div[1]/div/div[2]/div[2]/div/div/div[2]/div/div[3]/div[3]/div/button",
+                "adultsInit" : "/html/body/c-wiz[2]/div/div[2]/c-wiz/div[1]/c-wiz/div[2]/div[1]/div[1]/div[1]/div/div[1]/div[2]/div/div[1]/div/button",
+                "adults" : "/html/body/c-wiz[2]/div/div[2]/c-wiz/div[1]/c-wiz/div[2]/div[1]/div[1]/div[1]/div/div[1]/div[2]/div/div[2]/ul/li[1]/div/div/span[3]/button/div[1]",
+                "adultsConfirm" : "/html/body/c-wiz[2]/div/div[2]/c-wiz/div[1]/c-wiz/div[2]/div[1]/div[1]/div[1]/div/div[1]/div[2]/div/div[2]/div[2]/button[1]/span",
+                "submit" : "/html/body/c-wiz[2]/div/div[2]/c-wiz/div[1]/c-wiz/div[2]/div[1]/div[1]/div[2]/div/button",
+                "oneWayInit" : "/html/body/c-wiz[2]/div/div[2]/c-wiz/div[1]/c-wiz/div[2]/div[1]/div[1]/div[1]/div/div[1]/div[1]",
+                "oneWay" : "/html/body/c-wiz[2]/div/div[2]/c-wiz/div[1]/c-wiz/div[2]/div[1]/div[1]/div[1]/div/div[1]/div[1]/div/div/div/div[2]/ul/li[2]"
+            }
         },
         {
             "url" : "https://www.ryanair.com/es/es/trip/flights/select?adults={adults}&teens=0&children=0&infants=0&dateOut={dateFrom}&dateIn={dateBack}&isConnectedFlight=false&isReturn=true&discount=0&promoCode=&originIata={departure}&destinationIata={arrival}&tpAdults={adults}&tpTeens=0&tpChildren=0&tpInfants=0&tpStartDate={dateFrom}&tpEndDate={dateBack}&tpDiscount=0&tpPromoCode=&tpOriginIata={departure}&tpDestinationIata={arrival}",
