@@ -37,17 +37,18 @@ Script requires 3 system variables:
 ```
 
  Open above page in browser (yes, I know there should be some design involved ;) )
- Fill the form
+ Fill the form. Please remember to double check results.
 
- ## Configure websties use during seard
+## Configure websties use during seard
 
  Please update config-{country}.json file for selected country.
 
  Example for Spain (config-spain.json):
 
- ## Resources
+## Resources
 
- - Google Maps Api
- - OneNote Api (Microsoft Graph)
- - https://www.w3resource.com/javascript-exercises/event/javascript-event-handling-exercise-6.php for drag & drop
- - OpenAI API
+ -Google Maps Api
+ -OneNote Api (Microsoft Graph)
+ -https://www.w3resource.com/javascript-exercises/event/javascript-event-handling-exercise-6.php for drag & drop
+ -OpenAI API
+ -https://airlabs.co/docs/flight -> possible API to use to find flights information

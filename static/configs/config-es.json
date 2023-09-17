@@ -17,7 +17,21 @@
             "queryParams" : "?adultsv2={adults}&cabinclass=economy&childrenv2=&inboundaltsenabled=false&locale=en-GB&outboundaltsenabled=false&preferdirects=false&previousCultureSource=GEO_LOCATION&redirectedFrom=www.skyscanner.com&ref=home&rtn=1&stops=!twoPlusStops"
         },
         {
-            "url" : "https://tickets.vueling.com/???"
+            "url" : "https://vueling.com/",
+            "type": "parseWeb",
+            "company" : "Vueling",
+            "airportCode" : "IATA",
+            "dateFormat" : "%Y%#m%#d",
+            "params" : {
+                "cookiesAccept" : "onetrust-accept-btn-handler",
+                "departure" :  "originInput",
+                "arrival" : "destinationInput",
+                "dateFrom" : "outboundDate",
+                "dateBack" : "returnDate",
+                "adults" : "adultsIncrease",
+                "submit" : "btnSubmitHomeSearcher",
+                "oneWay" : "oneWayLabel"
+            }
         },
         {
             "url" : "https://wizzair.com/en-gb#/booking/select-flight/{departure}/{arrival}/{dateFrom}/{dateBack}/{adults}/0/0/null",

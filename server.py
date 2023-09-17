@@ -13,6 +13,7 @@ def start():
        return render_template('index.html', countries = countries)
 
 @app.route("/planner", methods=['GET'])
+
 def planner():
 
     args = request.args
@@ -42,11 +43,12 @@ def planner():
     # print(config)
 
 
+
     # traveling by plane
     if (transportStart == "Plane"):
 
         toCity = places[0]
-        flights = searchFlight(fromCity = fromCity, fromCountry = fromCountry, toCity = toCity, toCountry = toCountry, roundTrip = roundtrip, startDate = startDate, endDate = endDate, adults = adults, flights = config["flights"])
+        searchFlight(fromCity = fromCity, fromCountry = fromCountry, toCity = toCity, toCountry = toCountry, roundTrip = roundtrip, startDate = startDate, endDate = endDate, adults = adults, flights = config["flights"])
 
     # handel train
 
@@ -54,9 +56,10 @@ def planner():
 
 
     if (roundtrip == "on"):
+
         transportEnd = transportStart
-        exit(0)
-        #  return render_template('planner.html')
+        # exit(0)
+        return render_template('planner.html')
 
 
     # handle back trip
@@ -69,11 +72,12 @@ def planner():
         if (transportEnd == "Plane"):
 
             # reverse places
-            flights = searchFlight(fromCity = places[-1], fromCountry = toCountry, toCity = fromCity, toCountry = fromCountry, roundTrip = "off", startDate = endDate, endDate = endDate, adults = adults, flights = config["flights"])
+            searchFlight(fromCity = places[-1], fromCountry = toCountry, toCity = fromCity, toCountry = fromCountry, roundTrip = "off", startDate = endDate, endDate = endDate, adults = adults, flights = config["flights"])
 
     # Add case for roadtrip ??
 
-#   http://127.0.0.1:5000/planner?start=2023-09-20T10%3A00&end=2023-09-30T10%3A00&roundtrip=on&adults=1&transportStart=Plane&transportEnd=Train&fromCity=Barcelona&fromCountry=ES&toCountry=ES&days=11&nights=10&places%5B%5D=Granada&nights%5B%5D=10&submit=Search
+#   127.0.0.1:5000/planner?start=2023-09-23T10%3A00&end=2023-10-01T10%3A00&roundtrip=on&adults=3&transportStart=Plane&transportEnd=Train&fromCity=Barcelona&fromCountry=ES&toCountry=ES&days=11&nights=10&places[]=Granada&nights[]=10&submit=Search
+# http://127.0.0.1:5000/planner?start=2023-09-23T10%3A00&end=2023-10-01T10%3A00&adults=3&transportStart=Plane&transportEnd=Train&fromCity=Barcelona&fromCountry=ES&toCountry=ES&days=11&nights=10&places[]=Granada&nights[]=10&submit=Search
     return render_template('planner.html')
 
 
