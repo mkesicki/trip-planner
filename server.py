@@ -17,7 +17,6 @@ def start():
 def planner():
 
     args = request.args
-    # print(args)
 
     fromCountry = args['fromCountry']
     toCountry = args['toCountry']
@@ -40,9 +39,6 @@ def planner():
     f = open("static/configs/config-" + fromCountry.lower() + ".json", "r")
     config = json.loads(f.read())
     f.close()
-    # print(config)
-
-
 
     # traveling by plane
     if (transportStart == "Plane"):
@@ -56,19 +52,14 @@ def planner():
 
 
     if (roundtrip == "on"):
-
-        transportEnd = transportStart
-        # exit(0)
         return render_template('planner.html')
 
-
     # handle back trip
+    print("Handle back trip")
+
     if (transportEnd == "Plane"):
 
-        print("Handle back trip")
-
-        #  handle plane
-          # traveling by plane
+        # traveling by plane
         if (transportEnd == "Plane"):
 
             # reverse places
@@ -76,10 +67,7 @@ def planner():
 
     # Add case for roadtrip ??
 
-#   127.0.0.1:5000/planner?start=2023-09-23T10%3A00&end=2023-10-01T10%3A00&roundtrip=on&adults=3&transportStart=Plane&transportEnd=Train&fromCity=Barcelona&fromCountry=ES&toCountry=ES&days=11&nights=10&places[]=Granada&nights[]=10&submit=Search
-# http://127.0.0.1:5000/planner?start=2023-09-23T10%3A00&end=2023-10-01T10%3A00&adults=3&transportStart=Plane&transportEnd=Train&fromCity=Barcelona&fromCountry=ES&toCountry=ES&days=11&nights=10&places[]=Granada&nights[]=10&submit=Search
     return render_template('planner.html')
-
 
 if __name__ == "__main__":
     app.run(debug=True)
