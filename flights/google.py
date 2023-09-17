@@ -45,6 +45,21 @@ def parseGoogle(fromCity : str, fromCountry : str, toCity : str, toCountry : str
     confirm.click()
     time.sleep(1)
 
+    # handle passengers number
+    currentAdults = 1
+    browser.find_element(By.XPATH, params.get("adultsInit")).click()
+    time.sleep(2)
+
+    while currentAdults < int(adults):
+
+        browser.find_element(By.XPATH, params.get("adults")).click()
+        currentAdults = currentAdults + 1
+
+    if int(adults) > 1:
+        browser.find_element(By.XPATH, params.get("adultsConfirm")).click()
+
+    time.sleep(2)
+
     if roundTrip != "on":
         print("Handle one way trip")
         browser.find_element(By.XPATH, params.get("oneWayInit")).click()
@@ -58,19 +73,6 @@ def parseGoogle(fromCity : str, fromCountry : str, toCity : str, toCountry : str
         dateBack = browser.find_element(By.XPATH, params.get("dateBack"))
         dateBack.send_keys(endFlight)
         dateBack.send_keys(Keys.ENTER)
-
-
-    # handle passengers number
-    # currentAdults = 1
-
-    # while currentAdults < int(adults):
-    #     browser.find_element(By.XPATH, params.get("adultsInit")).click()
-    #     time.sleep(10)
-    #     browser.find_element(By.XPATH, params.get("adults")).click()
-    #     currentAdults = currentAdults + 1
-
-    # if int(adults) > 1:
-        # browser.find_element(By.XPATH, params.get("adultsConfirm")).click()
 
     #submit form
     time.sleep(2)

@@ -25,7 +25,7 @@ def searchFlight(fromCity : str, fromCountry : str, toCity : str, toCountry : st
 
     for flight in flights:
 
-        if flight.get("type") == "browserA":
+        if flight.get("type") == "browser":
 
             url =  flight.get("url") if (roundTrip == "on") else  flight.get("urlOneWay")
             startFlight = start.strftime(flight.get("dateFormat"))
@@ -44,7 +44,7 @@ def searchFlight(fromCity : str, fromCountry : str, toCity : str, toCountry : st
 
             print("url: " + url)
 
-            #webbrowser.open(url)
+            webbrowser.open(url)
 
         elif flight.get("type") == "parseWeb":
 
