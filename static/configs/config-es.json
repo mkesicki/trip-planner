@@ -1,8 +1,22 @@
 {
     "cars": [
         {
-            "url": "https://www.doyouspain.com/index.htm"
+            "url": "https://www.doyouspain.com/index.htm",
+            "urlOneWay" : "",
+            "type" : "AAA",
+            "company" : "NA",
+            "dateFormat" : "%y%m%d",
+            "queryParams" : ""
 
+        },
+        {
+            "url" : "https://www.kayak.es/cars/{departure}-{arrival}/{dateFrom}/{dateBack}/{adults}adults",
+            "urlOneWay" : "https://www.kayak.es/cars/{departure}-{arrival}/{dateFrom}/{addults}adults",
+            "type" : "browser",
+            "company" : "NA",
+            "airportCode" : "IATA",
+            "dateFormat" : "%Y-%m-%d",
+            "queryParams" : "?sort=bestflight_a&fs=stops=-2"
         }
     ],
 
