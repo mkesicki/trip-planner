@@ -30,20 +30,12 @@ class Plane(Transport):
             url = url + self.params.get("queryParams")
             url = url.format(departure = self.fromAirportCode, arrival = self.toAirportCode, dateFrom = self.startFlight, dateBack = self.endFlight, adults = self.adults)
 
-            # print("url: " + url)
-
-            # webbrowser.open(url)
+            print("url: " + url)
+            webbrowser.open(url)
 
         elif self.params.get("type") == "parseWeb":
 
             company = self.params.get("company")
-
-
-
-            # vueling = Vueling().parse(self.fromCity, self.fromCountry, self.toCity, self.toCountry, self.roundTrip, self.startDate, self.endDate, self.adults, self.params)
-            # exit(1)
-
-            # classes and all that jazz ?
 
             if importlib.util.find_spec("model."+company.title(),"./" + company.title() +".py") is not None:
                 print("Parse: " + company)
