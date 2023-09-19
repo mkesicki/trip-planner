@@ -7,15 +7,14 @@
             "company" : "NA",
             "dateFormat" : "%y%m%d",
             "queryParams" : ""
-
         },
         {
-            "url" : "https://www.kayak.es/cars/{departure}-{arrival}/{dateFrom}/{dateBack}/{adults}adults",
-            "urlOneWay" : "https://www.kayak.es/cars/{departure}-{arrival}/{dateFrom}/{addults}adults",
-            "type" : "browser",
-            "company" : "NA",
+            "url" : "https://www.kayak.es/cars/{departure}/{dateFrom}/{dateBack}/",
+            "urlOneWay" : "https://www.kayak.es/cars/{departure}/{arrival}/{dateFrom}/{dateBack}/",
+            "type" : "parseWeb",
+            "company" : "Kayakcar",
             "dateFormat" : "%Y-%m-%d",
-            "queryParams" : "?sort=bestflight_a&fs=stops=-2"
+            "queryParams" : "?fs=caroption=Automatic&sort=rank_a"
         }
     ],
 

@@ -91,4 +91,5 @@ def planner():
     return render_template('planner.html')
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # app.run(debug=True)
+    app.run()
