@@ -1,27 +1,24 @@
 import time
+import datetime
 
 from dateutil.relativedelta import relativedelta
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from model.Plane import Plane
 
-class Vueling(Plane):
+class Vueling:
 
-    def __init__(self, fromCity : str, fromCountry : str, toCity : str, toCountry : str, roundTrip : bool, startDate : str, endDate : str, adults : int, params : dict):
-        super().__init__(fromCity,fromCountry, toCity, toCountry, roundTrip, startDate, endDate, adults, params)
-
-    def parse(self):
+    def parse(self, fromCity : str, fromCountry : str, toCity : str, toCountry : str, roundTrip : bool, startDate : datetime.date, endDate : datetime.date, adults : int, params : dict):
 
         # they count from 0 -> January is 0
-        self.start = self.start - relativedelta(months=1)
-        self.end = self.end - relativedelta(months=1)
+        start = startDate - relativedelta(months=1)
+        end = endDate - relativedelta(months=1)
 
-        self.startFlight = self.start.strftime(self.params.get("dateFormat"))
-        self.endFlight = self.end.strftime(self.params.get("dateFormat"))
+        startTrip = start.strftime(params.get("dateFormat"))
+        endTrip = end.strftime(params.get("dateFormat"))
 
-        url = self.params.get("url")
-        config = self.params.get("params")
+        url = params.get("url")
+        config = params.get("params")
 
         print("Open Browser " + url + " in browser")
         browser = webdriver.Firefox()
@@ -34,29 +31,29 @@ class Vueling(Plane):
             cookiesAccept.click()
 
         departure = browser.find_element(By.ID, config.get("departure"))
-        departure.send_keys(self.fromAirportCode)
+        departure.send_keys(fromCity)
         departure.send_keys(Keys.ENTER)
 
         arrival = browser.find_element(By.ID, config.get("arrival"))
-        arrival.send_keys(self.toAirportCode)
+        arrival.send_keys(toCity)
         arrival.send_keys(Keys.ENTER)
 
         time.sleep(5)
 
-        if self.roundTrip != "on":
+        if roundTrip != "on":
             print("Handle one way trip")
-            browser.find_element(By.ID, config.get("oneWay")).click()
+            browser.find_element(By.ID, get("oneWay")).click()
             browser.implicitly_wait(5) # seconds
-            browser.find_element(By.ID, "calendarDaysTable" + self.startFlight).click()
+            browser.find_element(By.ID, "calendarDaysTable" + startTrip).click()
         else:
-            browser.find_element(By.ID, "calendarDaysTable" + self.startFlight).click()
+            browser.find_element(By.ID, "calendarDaysTable" + startTrip).click()
             browser.implicitly_wait(20) # seconds
-            browser.find_element(By.ID, "calendarDaysTable" + self.endFlight).click()
+            browser.find_element(By.ID, "calendarDaysTable" + endTrip).click()
 
         # handle passengers number
         currentAdults = 1
 
-        while currentAdults < int(self.adults):
+        while currentAdults < int(adults):
             browser.find_element(By.ID, config.get("adults")).click()
             currentAdults = currentAdults + 1
 

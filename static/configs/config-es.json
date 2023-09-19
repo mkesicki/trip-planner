@@ -14,7 +14,6 @@
             "urlOneWay" : "https://www.kayak.es/cars/{departure}-{arrival}/{dateFrom}/{addults}adults",
             "type" : "browser",
             "company" : "NA",
-            "airportCode" : "IATA",
             "dateFormat" : "%Y-%m-%d",
             "queryParams" : "?sort=bestflight_a&fs=stops=-2"
         }

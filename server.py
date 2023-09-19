@@ -2,7 +2,7 @@ import json
 
 from flask import Flask, render_template, request
 from country_list import countries_for_language
-from model.TransportFactory import TransportFactory
+from model.Transport import Transport
 
 countries = dict(countries_for_language('en'))
 
@@ -49,7 +49,7 @@ def planner():
 
     for params in settings:
 
-        transport = TransportFactory().createTransport(transportStart[:-1],fromCity = fromCity, fromCountry = fromCountry, toCity = toCity, toCountry = toCountry, roundTrip = roundtrip, startDate = startDate, endDate = endDate, adults = adults, params = params)
+        transport = Transport(fromCity = fromCity, fromCountry = fromCountry, toCity = toCity, toCountry = toCountry, roundTrip = roundtrip, startDate = startDate, endDate = endDate, adults = adults, params = params)
         transport.search()
 
     # traveling by plane
@@ -64,7 +64,7 @@ def planner():
 
 #     #handle car
 #     if (transportStart == "Car"):
-# # http://localhost:5000/planner?start=2023-09-20T10%3A00&end=2023-10-01T10%3A00&roundtrip=on&adults=1&transportStart=Car&transportEnd=Train&fromCity=Barcelona&fromCountry=ES&toCountry=ES&days=12&nights=11&places%5B%5D=Granada&nights%5B%5D=11&submit=Search
+# # 127.0.0.1:5000/planner?start=2023-09-20T10%3A00&end=2023-10-01T10%3A00&roundtrip=on&adults=3&transportStart=flights&transportEnd=trains&fromCity=Barcelona&fromCountry=ES&toCountry=ES&days=12&nights=11&places[]=Granada&nights[]=11&submit=Search
 #         toCity = places[0]
 #         searchCar(fromCity = fromCity, fromCountry = fromCountry, toCity = toCity, toCountry = toCountry, roundTrip = roundtrip, startDate = startDate, endDate = endDate, adults = adults, cars = config["cars"])
 
