@@ -17,6 +17,12 @@ class TransportFactory:
 
             # return Car(fromCity, fromCountry, toCity, toCountry, roundTrip, startDate, endDate, adults, params)
 
-        else:
+        elif type.lower() == 'train':
 
             return None
+
+            # return Train(fromCity, fromCountry, toCity, toCountry, roundTrip, startDate, endDate, adults, params)
+
+        else:
+
+            raise Exception("Transport type not found")
