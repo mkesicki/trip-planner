@@ -2,15 +2,25 @@
     "cars": [
         {
             "url": "https://www.doyouspain.com/index.htm",
-            "urlOneWay" : "",
-            "type" : "AAA",
-            "company" : "NA",
-            "dateFormat" : "%y%m%d",
-            "queryParams" : ""
+            "type" : "parseWeb",
+            "company" : "Doyouspain",
+            "dateFormat" : "%d/%m/%Y",
+            "queryParams" : "",
+            "params" : {
+                "cookiesAccept" : "",
+                "departure" :  "pickup",
+                "arrival" : "dropoff",
+                "dateFrom" : "fechaRecogida",
+                "dateBack" : "fechaDevolucion",
+                "timeFrom" : "fechaRecogidaSelHour",
+                "timeBack" : "fechaDevolucionSelHour",
+                "submit" : "sendForm",
+                "oneWay" : "chkOneWay"
+            }
         },
         {
-            "url" : "https://www.kayak.es/cars/{departure}/{dateFrom}/{dateBack}/",
-            "urlOneWay" : "https://www.kayak.es/cars/{departure}/{arrival}/{dateFrom}/{dateBack}/",
+            "url" : "https://www.kayak.es/cars/{departure}/{dateFrom}-{timeStart}h/{dateBack}-{timeEnd}h/",
+            "urlOneWay" : "https://www.kayak.es/cars/{departure}/{arrival}/{dateFrom}-{timeStart}h/{dateBack}-{timeEnd}h/",
             "type" : "parseWeb",
             "company" : "Kayakcar",
             "dateFormat" : "%Y-%m-%d",

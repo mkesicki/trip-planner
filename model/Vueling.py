@@ -27,8 +27,7 @@ class Vueling:
 
         # accept cookies
         if "cookiesAccept" in config:
-            cookiesAccept = browser.find_element(By.ID, config.get("cookiesAccept"))
-            cookiesAccept.click()
+            browser.find_element(By.ID, config.get("cookiesAccept")).click()
 
         departure = browser.find_element(By.ID, config.get("departure"))
         departure.send_keys(fromCity)
