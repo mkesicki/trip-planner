@@ -14,8 +14,8 @@ class Doyouspain:
         startTrip = startDate.strftime(params.get("dateFormat"))
         endTrip = endDate.strftime(params.get("dateFormat"))
 
-        timeStart = startDate.strftime("%H:00")
-        timeEnd = endDate.strftime("%H:00")
+        timeStart = startDate.strftime("%H")
+        timeEnd = endDate.strftime("%H")
 
         url = params.get("url")
         config = params.get("params")
@@ -32,27 +32,35 @@ class Doyouspain:
 
         departure = browser.find_element(By.ID, config.get("departure"))
         departure.send_keys(fromCity)
+        browser.implicitly_wait(10) # seconds
         browser.find_element(By.CLASS_NAME, "autocomplete-DWN").click() #click first "city" option
 
+        time.sleep(3)
+
         commanDateFrom = "document.getElementById('{dateFrom}').value='{date}';".format(dateFrom = config.get("dateFrom"), date = startTrip)
-        commandDateBack = "document.getElementById('{dateBack}').value='{date}';".format(dateBack = config.get("dateBack"), date=  endTrip)
+        commandDateBack = "document.getElementById('{dateBack}').value='{date}';".format(dateBack = config.get("dateBack"), date =  endTrip)
         browser.execute_script(commanDateFrom)
         browser.execute_script(commandDateBack)
 
-        commandTimeFrom = "document.querySelector(\"#{timeFrom} option[value='{time}']\").selected='selected';".format(timeFrom = config.get("timeFrom"), time = timeStart)
-        commandTimeEnd = "document.querySelector(\"#{timeBack} option[value='{time}']\").selected='selected';".format(timeBack = config.get("timeBack"), time = timeEnd)
+        time.sleep(2)
 
-        browser.implicitly_wait(10) # seconds
-        browser.execute_script(commandTimeFrom)
-        browser.execute_script(commandTimeEnd)
+        command1 = """document.getElementById("horarecogida").value="{timeStart}";""".format(timeStart = timeStart)
+        command2 = """document.getElementById("minutosrecogida").value="00";"""
+        command3 = """document.getElementById("horadevolucion").value="{timeEnd}";""".format(timeEnd = timeEnd)
+        command4 = """document.getElementById("minutosdevolucion").value="00";"""
+        browser.execute_script(command1)
+        browser.execute_script(command2)
+        browser.execute_script(command3)
+        browser.execute_script(command4)
+
+        time.sleep(2)
 
         if roundTrip != "on":
             print("Handle one way trip")
             browser.find_element(By.ID, config.get("oneWay")).click()
             arrival = browser.find_element(By.ID, config.get("arrival"))
             arrival.send_keys(toCity)
-            browser.implicitly_wait(10) # seconds
-
+            browser.implicitly_wait(5) # seconds
             browser.find_element(By.CSS_SELECTOR, "#devolucion_lista .autocomplete-DWN").click() #click first "city" option
 
         #submit form
