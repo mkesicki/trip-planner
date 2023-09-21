@@ -25,7 +25,7 @@ class Kayakcar:
 
         if roundTrip != "on":
             print("serch return point")
-            searchUrl ="https://www.kayak.es/mvm/smartyv2/search?f=j&s=car&where={city}&lc_cc={contry}".format(city = toCity, contry = toCountry)
+            searchUrl ="https://www.kayak.es/mvm/smartyv2/search?f=j&s=car&where={city}&lc_cc={country}".format(city = toCity, country = toCountry)
             response = requests.post(searchUrl)
             first = response.json()[0]
             toCity = toCity + "-c" + first["id"]
