@@ -25,6 +25,33 @@
             "company" : "Kayakcar",
             "dateFormat" : "%Y-%m-%d",
             "queryParams" : "?fs=caroption=Automatic&sort=rank_a"
+        },
+        {
+            "initUrl": "https://okmobility.com/en/rent/",
+            "url" : "https://okmobility.com/en/rent/booking/availability/?pickupplace={id}&pickupdate={dateFrom}&pickuptime={startTime}&dropoffplace={dropoffId}&dropoffdate={dateBack}&dropofftime={endTime}",
+            "type" : "parseWeb",
+            "company" : "Ok",
+            "dateFormat" : "%d-%m-%Y",
+            "queryParams" : "",
+            "params" : {
+                "cookiesAccept" : "c-p-bn",
+                "departure" :  "pickupplaceBanner",
+                "arrival" : "",
+                "dateFrom" : "",
+                "dateBack" : "",
+                "timeFrom" : "",
+                "timeBack" : "",
+                "submit" : "",
+                "oneWay" : ""
+            }
+        },
+        {
+            "url": "https://www.quadisrentacar.es/vehiculos/?pickup_date={dateFrom}&pickup_time={timeStart}:00&return_date={dateBack}&return_time={timeEnd}:00",
+            "urlOneWay": "https://www.quadisrentacar.es/vehiculos/?pickup_date={dateFrom}&pickup_time={timeStart}:00&return_date={dateBack}&return_time={timeEnd}:00",
+            "type" : "browser",
+            "company" : "Quadis",
+            "dateFormat" : "%Y-%m-%d",
+            "queryParams" : "&field_car_features_target_id[2]=2"
         }
     ],
 
@@ -43,7 +70,7 @@
             "type": "parseWeb",
             "company" : "Vueling",
             "airportCode" : "IATA",
-            "dateFormat" : "%Y%#m%#d",
+            "dateFormat" : "%Y{X}%#d",
             "params" : {
                 "cookiesAccept" : "onetrust-accept-btn-handler",
                 "departure" :  "originInput",
@@ -52,7 +79,8 @@
                 "dateBack" : "returnDate",
                 "adults" : "adultsIncrease",
                 "submit" : "btnSubmitHomeSearcher",
-                "oneWay" : "oneWayLabel"
+                "oneWay" : "oneWayLabel",
+                "dateForward" : "nextButtonCalendar"
             }
         },
         {

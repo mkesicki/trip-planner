@@ -26,11 +26,13 @@ class Transport:
         self.startTrip = self.start.strftime(self.params.get("dateFormat"))
         self.endTrip = self.end.strftime(self.params.get("dateFormat"))
 
+        self.timeStart = self.start.strftime("%H:00")
+        self.timeEnd = self.end.strftime("%H:00")
+
         if "airportCode" in self.params:
 
             self.fromCity = self.findAirportCode(self.fromCountry, self.fromCity, self.params.get("airportCode"))
             self.toCity = self.findAirportCode(self.toCountry, self.toCity, self.params.get("airportCode"))
-
 
     def search(self) :
 
@@ -38,10 +40,10 @@ class Transport:
 
             url =  self.params.get("url") if (self.roundTrip == "on") else  self.params.get("urlOneWay")
             url = url + self.params.get("queryParams")
-            url = url.format(departure = self.fromCity, arrival = self.toCity, dateFrom = self.startTrip, dateBack = self.endTrip, adults = self.adults)
+            url = url.format(departure = self.fromCity, arrival = self.toCity, dateFrom = self.startTrip, dateBack = self.endTrip, adults = self.adults, timeStart = self.timeStart, timeEnd = self.timeEnd)
 
             print("url: " + url)
-            # webbrowser.open(url)
+            webbrowser.open(url)
 
         elif self.params.get("type") == "parseWeb":
 
@@ -60,7 +62,7 @@ class Transport:
 
         for code, airport in airports.items():
 
-            if (airport.get("city") == city and airport.get("country") == country):
+            if (airport.get("city").lower() == city.lower() and airport.get("country").lower() == country.lower()):
                 return code
 
         return ""

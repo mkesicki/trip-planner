@@ -52,27 +52,20 @@ def planner():
         transport = Transport(fromCity = fromCity, fromCountry = fromCountry, toCity = toCity, toCountry = toCountry, roundTrip = roundtrip, startDate = startDate, endDate = endDate, adults = adults, params = params)
         transport.search()
 
-
-
-
     # traveling by plane
 #     if (transportStart == "Plane"):
 
 #         toCity = places[0]
 #         searchFlight(fromCity = fromCity, fromCountry = fromCountry, toCity = toCity, toCountry = toCountry, roundTrip = roundtrip, startDate = startDate, endDate = endDate, adults = adults, flights = config["flights"])
 
-
 #     # handel train
 
 #     #handle car
 #     if (transportStart == "Car"):
-# # 127.0.0.1:5000/planner?start=2023-09-20T10%3A00&end=2023-10-01T10%3A00&roundtrip=on&adults=3&transportStart=flights&transportEnd=trains&fromCity=Barcelona&fromCountry=ES&toCountry=ES&days=12&nights=11&places[]=Granada&nights[]=11&submit=Search
-# http://127.0.0.1:5000/planner?start=2023-09-21T11%3A00&end=2023-10-01T13%3A00&roundtrip=on&adults=3&transportStart=cars&transportEnd=cars&fromCity=Barcelona&fromCountry=ES&toCountry=ES&days=12&nights=11&places[]=Granada&nights[]=11&submit=Search
+# # 127.0.0.1:5000/planner?start=2024-01-01T11%3A00&end=2024-02-01T13%3A00&roundtrip=on&adults=3&transportStart=flights&transportEnd=flight&fromCity=Barcelona&fromCountry=ES&toCountry=ES&days=12&nights=11&places[]=malaga&nights[]=11&submit=Search
+# 127.0.0.1:5000/planner?start=2024-01-01T11%3A00&end=2024-02-01T13%3A00&roundtrip=on&adults=3&transportStart=cars&transportEnd=cars&fromCity=Barcelona&fromCountry=ES&toCountry=ES&days=12&nights=11&places[]=malaga&nights[]=11&submit=Search
 #         toCity = places[0]
 #         searchCar(fromCity = fromCity, fromCountry = fromCountry, toCity = toCity, toCountry = toCountry, roundTrip = roundtrip, startDate = startDate, endDate = endDate, adults = adults, cars = config["cars"])
-
-
-
 
     if (roundtrip == "on"):
         return render_template('planner.html')
@@ -93,5 +86,5 @@ def planner():
     return render_template('planner.html')
 
 if __name__ == "__main__":
-    # app.run(debug=True)
-    app.run()
+    app.run(debug=True)
+    # app.run()
