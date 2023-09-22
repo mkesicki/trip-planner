@@ -6,8 +6,7 @@ from dateutil.relativedelta import relativedelta
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
-
-class Kayakcar:
+class KayakCar:
 
     def parse(self, fromCity : str, fromCountry : str, toCity : str, toCountry : str, roundTrip : bool, startDate : datetime.date, endDate : datetime.date, adults : int, params : dict):
 

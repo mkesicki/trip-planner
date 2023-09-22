@@ -49,11 +49,11 @@ class Transport:
 
             company = self.params.get("company")
 
-            if importlib.util.find_spec("model."+company.title(),"./" + company.title() +".py") is not None:
+            if importlib.util.find_spec("model."+company,"./" + company +".py") is not None:
 
                 print("Parse: " + company)
-                module = importlib.import_module("model."+company.title(),"./" + company.title() +".py")
-                obj = getattr(module, company.title())()
+                module = importlib.import_module("model."+company,"./" + company +".py")
+                obj = getattr(module, company)()
                 obj.parse(self.fromCity, self.fromCountry, self.toCity, self.toCountry, self.roundTrip, self.start, self.end, self.adults, self.params)
 
     def findAirportCode(self,  country : str, city : str, type : str = "IATA") -> str:

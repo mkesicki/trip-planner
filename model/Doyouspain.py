@@ -4,10 +4,8 @@ import datetime
 from dateutil.relativedelta import relativedelta
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-# from selenium.webdriver.common.keys import Keys
-# from selenium.webdriver.common.action_chains import ActionChains
 
-class Doyouspain:
+class DoYouSpain:
 
     def parse(self, fromCity : str, fromCountry : str, toCity : str, toCountry : str, roundTrip : bool, startDate : datetime.date, endDate : datetime.date, adults : int, params : dict):
 

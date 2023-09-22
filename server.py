@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 from flask import Flask, render_template, request
 from country_list import countries_for_language
@@ -35,14 +36,33 @@ def planner():
     nights = args.getlist('nights[]')
     adults = args['adults']
 
-    #Read config file
-    f = open("static/configs/config-" + fromCountry.lower() + ".json", "r")
-    config = json.loads(f.read())
+    filePath = "static/configs/config-" + fromCountry.lower() + ".json"
+    #Read config files
+    path = Path(filePath)
+    configLocal = {}
+    if path.is_file():
+        f = open(filePath, "r")
+        configLocal = json.loads(f.read())
+        f.close()
+
+    f = open("static/configs/config.json", "r")
+    configMain = json.loads(f.read())
     f.close()
 
+    config = {
+        "cars": configMain["cars"] + configLocal["cars"],
+        "flights": configMain["flights"] + configLocal["flights"],
+        "trains": configMain["trains"] + configLocal["trains"],
+        "hotels": configMain["hotels"] + configLocal["hotels"]
+    }
+    # config.update(configLocal)
+    # print(config.json())
+    # return ""
     # handle start trip transport
     settings = config[transportStart]
     toCity = places[0]
+
+
 
     message = """Searching {type} from {fromCity} in {fromCountry} to {toCity} in {toCountry}. Bettween {startDate} and {endDate}""".format(fromCity = fromCity, fromCountry = countries.get(fromCountry), toCity = toCity, toCountry = countries.get(toCountry), startDate = startDate, endDate = endDate, type = transportStart)
     print(message)
