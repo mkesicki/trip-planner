@@ -27,8 +27,14 @@
                 "submit" : "",
                 "oneWay" : ""
             }
+        },
+        {
+            "url" : "https://www.sixt.com/betafunnel/#/offerlist?zen_pu_location={departureLocationId}&zen_do_location={arrivalLocationId}&zen_pu_title={departureLocation}&zen_do_title={arrivalLocation}&zen_pu_time={startTrip}&zen_do_time={endTrip}&zen_pu_branch_id={departureBranch}&zen_do_branch_id={arrivalBranch}",
+            "type" : "parseWeb",
+            "company" : "Sixt",
+            "dateFormat" : "%Y-%m-%dT%H:00",
+            "queryParams" : "&zen_filters=%7B%22group_type%22%3A%5B%5D%2C%22transmission_type%22%3A%5B%7B%22key%22%3A%22transmission_type%22%2C%22value%22%3A%22TRANSMISSION_TYPE_AUTOMATIC%22%7D%5D%2C%22passengers_count%22%3A%5B%7B%22value%22%3A%222%22%2C%22key%22%3A%22passengers_count%22%7D%5D%2C%22bags_count%22%3A%5B%7B%22value%22%3A%220%22%2C%22key%22%3A%22bags_count%22%7D%5D%2C%22minimum_driver_age%22%3A%5B%7B%22value%22%3A%2231%22%2C%22key%22%3A%22minimum_driver_age%22%7D%5D%7D&zen_resident_country_code=&zen_order_is_ascending=true&zen_order_by=sort_order&zen_booking_id=0d13c087-4c4b-438c-8cbc-62db4e4ddadc"
         }
-
     ],
 
     "flights": [
