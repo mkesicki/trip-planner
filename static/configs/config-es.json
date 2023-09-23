@@ -53,10 +53,22 @@
 
     "hotels": [],
 
-
     "trains": [
         {
-        "url": "https://www.renfe.com/"
+            "url" : "https://www.renfe.com/es/es",
+            "type" : "parseWeb",
+            "company" : "Renfe",
+            "dateFormat" : "%d-%m-%Y",
+            "queryParams" : "",
+            "params" : {
+                "cookiesAccept" : "onetrust-accept-btn-handler",
+                "departure" :  "cdgoOrigen",
+                "arrival" : "cdgoDestino",
+                "dateFrom" : "FechaIdaSel",
+                "dateBack" : "FechaVueltaSel",
+                "submit" : "button[type='submit']",
+                "adults": "adultos_"
+            }
         }
     ]
 }

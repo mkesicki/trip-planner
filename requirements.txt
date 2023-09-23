@@ -8,3 +8,4 @@ flask>=2.3.3
 country_list>=1.0.0
 airportsdata=>20230906
 selenium>=4.12.0
+selenium-requests>=2.0.3

@@ -53,7 +53,7 @@ class DoYouSpain:
 
         time.sleep(2)
 
-        if roundTrip != "on":
+        if roundTrip != True:
             print("Handle one way trip")
             browser.find_element(By.ID, config.get("oneWay")).click()
             arrival = browser.find_element(By.ID, config.get("arrival"))

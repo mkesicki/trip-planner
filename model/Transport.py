@@ -54,7 +54,7 @@ class Transport:
                 print("Parse: " + company)
                 module = importlib.import_module("model."+company,"./" + company +".py")
                 obj = getattr(module, company)()
-                obj.parse(self.fromCity, self.fromCountry, self.toCity, self.toCountry, self.roundTrip, self.start, self.end, self.adults, self.params)
+                obj.parse(self.fromCity, self.fromCountry, self.toCity, self.toCountry, self.roundTrip == "on", self.start, self.end, self.adults, self.params)
 
     def findAirportCode(self,  country : str, city : str, type : str = "IATA") -> str:
 

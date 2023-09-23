@@ -21,7 +21,7 @@ class OkMobility:
 
         pickupId = self.getLocation(fromCity)
 
-        if (roundTrip == "on"):
+        if (roundTrip == True):
             dropoffId = pickupId
         else:
             dropoffId = self.getLocation(toCity)

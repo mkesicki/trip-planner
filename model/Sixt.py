@@ -18,7 +18,7 @@ class Sixt:
 
         pickup = self.getLocation(fromCity, fromCountry)
 
-        if (roundTrip == "on"):
+        if (roundTrip == True):
             dropoff = pickup
         else:
             dropoff = self.getLocation(toCity, toCountry)

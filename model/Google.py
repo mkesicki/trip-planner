@@ -54,7 +54,7 @@ class Google:
 
         time.sleep(2)
 
-        if roundTrip != "on":
+        if roundTrip != True:
             print("Handle one way trip")
             browser.find_element(By.XPATH, config.get("oneWayInit")).click()
             browser.find_element(By.XPATH, config.get("oneWay")).click()

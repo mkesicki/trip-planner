@@ -46,7 +46,7 @@ class Vueling:
 
         self.findDate(browser, startTrip)
 
-        if roundTrip != "on":
+        if roundTrip != True:
             print("Handle one way trip")
             browser.find_element(By.ID, get("oneWay")).click()
             browser.implicitly_wait(5) # seconds
