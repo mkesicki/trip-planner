@@ -69,6 +69,22 @@
                 "submit" : "button[type='submit']",
                 "adults": "adultos_"
             }
+        },
+        {
+            "url" : "https://www.ouigo.com/es/en",
+            "type" : "parseWeb",
+            "company" : "Ouigo",
+            "dateFormat" : "%d/%m/%y",
+            "queryParams" : "",
+            "params" : {
+                "cookiesAccept" : "didomi-notice-agree-button",
+                "departure" :  "origin-station-input-field__input",
+                "arrival" : "destination-station-input-field__input",
+                "dateFrom" : "search-engine__inputfield__outbound-date__input",
+                "dateBack" : "search-engine__inputfield__inbound-date__input",
+                "submit" : "/html/body/div[1]/div/form/div[3]/div[2]/button",
+                "adults": "step-plus"
+            }
         }
     ]
 }
