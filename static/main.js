@@ -186,13 +186,15 @@ dragList.addEventListener('drop', handleDrop);
 
     if (totalNights > document.getElementById("nights").value) {
         submit.setAttribute("disabled", "disabled");
-        document.getElementById("error").textContent = "Total nights cannot be greater than total nights of trip";
+        document.getElementById("error").textContent = "Sum of nights cannot be greater than total nights of trip";
 
         return;
     }
 
     if (totalNights < document.getElementById("nights").value) {
         submit.setAttribute("disabled", "disabled");
-        document.getElementById("error").textContent = "Total nights needs to be equal to total nights of trip";
+        document.getElementById("error").textContent = "Sum of nights needs to be equal to total nights of trip";
     }
+
+    document.getElementById("nightsLeft").value = document.getElementById("nights").value - totalNights;
   }

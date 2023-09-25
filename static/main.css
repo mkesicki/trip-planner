@@ -32,5 +32,10 @@ body {
 .error {
     font-weight: bold;
     color: red;
-    
+
+}
+
+.nightsLeft {
+    color:green;
+    font-weight: bold;
 }
