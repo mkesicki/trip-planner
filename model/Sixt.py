@@ -46,6 +46,7 @@ class Sixt:
         print("Get sixt location for: " + city)
         response = requests.post("https://grpc-prod.orange.sixt.com/com.sixt.service.rent_booking.api.SearchService/SuggestLocations", data = json.dumps({"query": city + " " + country }), headers = headers)
 
+        time.sleep(3)
         locationId = response.json().get("suggestions")[0].get("location").get("location_id")
         response = requests.post("https://grpc-prod.orange.sixt.com/com.sixt.service.rent_booking.api.SearchService/SelectLocation", data = json.dumps({"location_id": locationId}), headers = headers)
 
