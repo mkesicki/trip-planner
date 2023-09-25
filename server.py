@@ -37,6 +37,7 @@ def planner():
     adults = args['adults']
 
     filePath = "static/configs/config-" + fromCountry.lower() + ".json"
+
     #Read config files
     path = Path(filePath)
     configLocal = {}
@@ -55,14 +56,10 @@ def planner():
         "trains": configMain["trains"] + configLocal["trains"],
         "hotels": configMain["hotels"] + configLocal["hotels"]
     }
-    # config.update(configLocal)
-    # print(config.json())
-    # return ""
+
     # handle start trip transport
     settings = config[transportStart]
     toCity = places[0]
-
-
 
     message = """Searching {type} from {fromCity} in {fromCountry} to {toCity} in {toCountry}. Bettween {startDate} and {endDate}""".format(fromCity = fromCity, fromCountry = countries.get(fromCountry), toCity = toCity, toCountry = countries.get(toCountry), startDate = startDate, endDate = endDate, type = transportStart)
     print(message)
@@ -72,16 +69,6 @@ def planner():
         transport = Transport(fromCity = fromCity, fromCountry = fromCountry, toCity = toCity, toCountry = toCountry, roundTrip = roundtrip, startDate = startDate, endDate = endDate, adults = adults, params = params)
         transport.search()
 
-    # traveling by plane
-#     if (transportStart == "Plane"):
-
-#         toCity = places[0]
-#         searchFlight(fromCity = fromCity, fromCountry = fromCountry, toCity = toCity, toCountry = toCountry, roundTrip = roundtrip, startDate = startDate, endDate = endDate, adults = adults, flights = config["flights"])
-
-#     # handel train
-
-#     #handle car
-#     if (transportStart == "Car"):
 # # 127.0.0.1:5000/planner?start=2024-01-01T11%3A00&end=2024-02-01T13%3A00&roundtrip=on&adults=3&transportStart=flights&transportEnd=flight&fromCity=Barcelona&fromCountry=ES&toCountry=ES&days=12&nights=11&places[]=malaga&nights[]=11&submit=Search
 # 127.0.0.1:5000/planner?start=2024-01-01T11%3A00&end=2024-02-01T13%3A00&roundtrip=on&adults=3&transportStart=cars&transportEnd=cars&fromCity=Barcelona&fromCountry=ES&toCountry=ES&days=12&nights=11&places[]=malaga&nights[]=11&submit=Search
 #         toCity = places[0]
@@ -93,15 +80,8 @@ def planner():
     # handle back trip
     print("Handle back trip")
 
-    # if (transportEnd == "Plane"):
-
-        # traveling by plane
-        # if (transportEnd == "Plane"):
-
-            # reverse places
-            # searchFlight(fromCity = places[-1], fromCountry = toCountry, toCity = fromCity, toCountry = fromCountry, roundTrip = "off", startDate = endDate, endDate = endDate, adults = adults, flights = config["flights"])
-
-    # Add case for roadtrip ??
+    # reverse places
+    # searchFlight(fromCity = places[-1], fromCountry = toCountry, toCity = fromCity, toCountry = fromCountry, roundTrip = "off", startDate = endDate, endDate = endDate, adults = adults, flights = config["flights"])
 
     return render_template('planner.html')
 
