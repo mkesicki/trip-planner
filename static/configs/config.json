@@ -105,6 +105,14 @@
             "company" : "Booking",
             "dateFormat" : "%Y-%m-%d",
             "queryParams" : ""
+        },
+        {
+            "url" : "https://www.airbnb.com/s/{arrival},{arrivalCountry}/homes?tab_id=home_tab&checkin={dateFrom}&checkout={dateBack}&adults={adults}",
+            "urlOneWay" : "https://www.airbnb.com/s/{arrival},{arrivalCountry}/homes?tab_id=home_tab&checkin={dateFrom}&checkout={dateBack}&adults={adults}",
+            "type" : "browser",
+            "company" : "Airbnb",
+            "dateFormat" : "%Y-%m-%d",
+            "queryParams" : ""
         }
     ],
 

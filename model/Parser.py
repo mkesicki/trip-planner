@@ -41,7 +41,7 @@ class Parser:
 
             url =  self.params.get("url") if (self.roundTrip == "on") else  self.params.get("urlOneWay")
             url = url + self.params.get("queryParams")
-            url = url.format(departure = self.fromCity, arrival = self.toCity, dateFrom = self.startTrip, dateBack = self.endTrip, adults = self.adults, timeStart = self.timeStart, timeEnd = self.timeEnd)
+            url = url.format(departure = self.fromCity, arrival = self.toCity, dateFrom = self.startTrip, dateBack = self.endTrip, adults = self.adults, timeStart = self.timeStart, timeEnd = self.timeEnd, arrivalCountry = self.toCountry, departureCountry = self.fromCountry )
 
             print("url: " + url)
             webbrowser.open(url)
