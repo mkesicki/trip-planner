@@ -20,6 +20,7 @@ class Parser:
         self.adults = adults
         self.params = params
         self.countries = dict(countries_for_language('en'))
+
         self.start = datetime.datetime.strptime(startDate,"%Y-%m-%dT%H:%M")
         self.end = datetime.datetime.strptime(endDate,"%Y-%m-%dT%H:%M")
 

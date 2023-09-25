@@ -100,7 +100,11 @@
 
     "hotels": [
         {
-        "url": "https://www.booking.com/"
+            "url" : "https://www.booking.com/searchresults.en-gb.html?ss={arrival}&checkin={dateFrom}&checkout={dateBack}&group_adults={adults}&dest_id={destId}",
+            "type" : "parseWeb",
+            "company" : "Booking",
+            "dateFormat" : "%Y-%m-%d",
+            "queryParams" : ""
         }
     ],
 

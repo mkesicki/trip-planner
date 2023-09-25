@@ -1,6 +1,8 @@
 import json
-from pathlib import Path
+import datetime
+import time
 
+from pathlib import Path
 from flask import Flask, render_template, request
 from country_list import countries_for_language
 from model.Parser import Parser
@@ -73,9 +75,8 @@ def planner():
         print(message)
 
         for params in settings:
-            pass
-            # transport = Parser(fromCity = fromCity, fromCountry = fromCountry, toCity = toCity, toCountry = toCountry, roundTrip = roundtrip, startDate = startDate, endDate = endDate, adults = adults, params = params)
-            # transport.search()
+            transport = Parser(fromCity = fromCity, fromCountry = fromCountry, toCity = toCity, toCountry = toCountry, roundTrip = roundtrip, startDate = startDate, endDate = endDate, adults = adults, params = params)
+            transport.search()
 
         # # 127.0.0.1:5000/planner?start=2024-01-01T11%3A00&end=2024-02-01T13%3A00&roundtrip=on&adults=3&transportStart=flights&transportEnd=flight&fromCity=Barcelona&fromCountry=ES&toCountry=ES&days=12&nights=11&places[]=malaga&nights[]=11&submit=Search
         # 127.0.0.1:5000/planner?start=2024-01-01T11%3A00&end=2024-02-01T13%3A00&roundtrip=on&adults=3&transportStart=cars&transportEnd=cars&fromCity=Barcelona&fromCountry=ES&toCountry=ES&days=12&nights=11&places[]=malaga&nights[]=11&submit=Search
@@ -93,7 +94,27 @@ def planner():
 
                 transport = Parser(fromCity = places[-1], fromCountry = toCountry, toCity = fromCity, toCountry = fromCountry, roundTrip = "off", startDate = endDate, endDate = newEndDate, adults = adults, params = params)
                 transport.search()
+
     print("Search hotels!")
+    settings = config["hotels"]
+
+    for params in settings:
+
+        hotelCheckin = datetime.datetime.strptime(startDate,"%Y-%m-%dT%H:%M")
+
+        for place in places:
+
+            hotelCheckout = hotelCheckin + datetime.timedelta(days=int(nights[places.index(place)]))
+            fromCity = ""
+            toCity = place
+
+            transport = Parser(fromCity = fromCity, fromCountry = fromCountry, toCity = toCity, toCountry = countries[toCountry], roundTrip = roundtrip,
+                               startDate = hotelCheckin.strftime("%Y-%m-%dT%H:%M"),
+                               endDate = hotelCheckout.strftime("%Y-%m-%dT%H:%M"),
+                               adults = adults, params = params)
+            transport.search()
+            hotelCheckin = hotelCheckout
+            time.sleep(3)
 
     return render_template('planner.html')
 
