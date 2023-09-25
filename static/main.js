@@ -41,6 +41,7 @@ document.getElementById("startTime").addEventListener("change", function(){
 // add new place to list (click on the button)
 document.getElementById("placesButton").addEventListener("click", function() {
 
+    const countries = document.getElementById("toCountry");
     places = document.getElementsByName("places[]");
 
     input = document.createElement("input");
@@ -48,6 +49,21 @@ document.getElementById("placesButton").addEventListener("click", function() {
     input.name = "places[]";
     input.placeholder = "Place to go";
     input.required = "required";
+
+    country = document.createElement("select");
+    country.name = "countries[]";
+
+    for (var i = 0; i < countries.length; i++) {
+         option = document.createElement("option");
+         option.value = countries.options[i].value;
+         option.textContent = countries.options[i].textContent;
+
+         if(countries.options[i].selected) {
+             option.setAttribute("selected", "selected");
+         }
+
+         country.appendChild(option);
+     }
 
     input2 = document.createElement("input");
     input2.type = "number";
@@ -72,6 +88,8 @@ document.getElementById("placesButton").addEventListener("click", function() {
     div = document.createElement("div");
     div.appendChild(input);
     div.appendChild(document.createTextNode(" "));
+    div.appendChild(country);
+    div.appendChild(document.createTextNode(" "));
     div.appendChild(input2);
     div.appendChild(document.createTextNode(" "));
     div.appendChild(button);
@@ -84,7 +102,7 @@ document.getElementById("placesButton").addEventListener("click", function() {
     document.getElementById("placesList").appendChild(li);
 });
 
-// calculate dates calulations
+// dates calculations
 function updatedTime() {
 
     var start = new Date(document.getElementById("startTime").value);

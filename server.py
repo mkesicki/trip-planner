@@ -22,11 +22,13 @@ def planner():
     args = request.args
 
     fromCountry = args['fromCountry']
-    toCountry = args['toCountry']
+    # toCountry = args['toCountry']
     startDate = args['start']
     endDate = args['end']
     backTime = args['backTime']
-    print
+    tripCountries = args.getlist("countries[]")
+
+    toCountry = tripCountries[-1]
 
     if 'roundtrip' in args:
         roundtrip = args['roundtrip']
@@ -70,6 +72,9 @@ def planner():
     settings = config[transportStart]
     toCity = places[0]
 
+
+    print("Too countryAAA: " + toCountry)
+
     if hotelsOnly != "on":
         message = """Searching {type} from {fromCity} in {fromCountry} to {toCity} in {toCountry}. Bettween {startDate} and {endDate}""".format(fromCity = fromCity, fromCountry = countries.get(fromCountry), toCity = toCity, toCountry = countries.get(toCountry), startDate = startDate, endDate = endDate, type = transportStart)
         print(message)
@@ -105,10 +110,11 @@ def planner():
         for place in places:
 
             hotelCheckout = hotelCheckin + datetime.timedelta(days=int(nights[places.index(place)]))
+            country =  tripCountries[places.index(place)]
             fromCity = ""
             toCity = place
 
-            transport = Parser(fromCity = fromCity, fromCountry = fromCountry, toCity = toCity, toCountry = countries[toCountry], roundTrip = roundtrip,
+            transport = Parser(fromCity = fromCity, fromCountry = fromCountry, toCity = toCity, toCountry = countries[country], roundTrip = roundtrip,
                                startDate = hotelCheckin.strftime("%Y-%m-%dT%H:%M"),
                                endDate = hotelCheckout.strftime("%Y-%m-%dT%H:%M"),
                                adults = adults, params = params)

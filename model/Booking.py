@@ -20,7 +20,6 @@ class Booking:
         print(json.dumps(data))
         response = requests.post("https://accommodations.booking.com/autocomplete.json", data = json.dumps(data), headers = headers)
 
-        # results = response.json()
         place = response.json().get("results")[0]
 
         url = params.get("url")
