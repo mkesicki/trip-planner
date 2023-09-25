@@ -52,4 +52,6 @@ Script requires 3 system variables:
  -https://www.w3resource.com/javascript-exercises/event/javascript-event-handling-exercise-6.php for drag & drop
  -OpenAI API
  -https://airlabs.co/docs/flight -> possible API to use to find flights information
+
+
  

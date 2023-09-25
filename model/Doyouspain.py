@@ -1,7 +1,6 @@
 import time
 import datetime
 
-from dateutil.relativedelta import relativedelta
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
@@ -18,7 +17,7 @@ class DoYouSpain:
         url = params.get("url")
         config = params.get("params")
 
-        print("Open Browser " + url + " in browser")
+        print("Open Browser " + url)
         browser = webdriver.Firefox()
         browser.get(url)
         browser.implicitly_wait(10) # seconds

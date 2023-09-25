@@ -4,7 +4,6 @@ import datetime
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from model.Transport import Transport
 
 class Google:
 
@@ -16,7 +15,7 @@ class Google:
         startTrip = startDate.strftime(params.get("dateFormat"))
         endTrip = endDate.strftime(params.get("dateFormat"))
 
-        print("Open Browser " + url + " in browser")
+        print("Open Browser " + url)
         browser = webdriver.Firefox()
         browser.get(url)
         browser.implicitly_wait(10) # seconds

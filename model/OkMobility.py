@@ -40,7 +40,7 @@ class OkMobility:
 
     def getLocation(self, city : str):
 
-        print("Open Browser " + self.url + " in browser")
+        print("Open Headless Browser " + self.url)
 
         options = Options()
         options.add_argument("-headless") # Here

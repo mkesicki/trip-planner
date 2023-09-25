@@ -2,10 +2,6 @@ import datetime
 import requests
 import webbrowser
 
-from dateutil.relativedelta import relativedelta
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-
 class KayakCar:
 
     def parse(self, fromCity : str, fromCountry : str, toCity : str, toCountry : str, roundTrip : bool, startDate : datetime.date, endDate : datetime.date, adults : int, params : dict):
@@ -23,7 +19,6 @@ class KayakCar:
         fromCity = fromCity + "-c" + first["id"]
 
         if roundTrip != True:
-            print("serch return point")
             searchUrl ="https://www.kayak.es/mvm/smartyv2/search?f=j&s=car&where={city}&lc_cc={country}".format(city = toCity, country = toCountry)
             response = requests.post(searchUrl)
             first = response.json()[0]

@@ -3,9 +3,7 @@ import datetime
 import webbrowser
 import requests
 import json
-import urllib
 
-from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 
