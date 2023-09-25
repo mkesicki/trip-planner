@@ -23,11 +23,18 @@ def planner():
     toCountry = args['toCountry']
     startDate = args['start']
     endDate = args['end']
+    backTime = args['backTime']
+    print
 
     if 'roundtrip' in args:
         roundtrip = args['roundtrip']
     else:
         roundtrip = "off"
+
+    if 'hotelsOnly' in args:
+        hotelsOnly = args['hotelsOnly']
+    else:
+        hotelsOnly = "off"
 
     transportStart = args['transportStart']
     transportEnd = args['transportEnd']
@@ -61,30 +68,32 @@ def planner():
     settings = config[transportStart]
     toCity = places[0]
 
-    message = """Searching {type} from {fromCity} in {fromCountry} to {toCity} in {toCountry}. Bettween {startDate} and {endDate}""".format(fromCity = fromCity, fromCountry = countries.get(fromCountry), toCity = toCity, toCountry = countries.get(toCountry), startDate = startDate, endDate = endDate, type = transportStart)
-    print(message)
+    if hotelsOnly != "on":
+        message = """Searching {type} from {fromCity} in {fromCountry} to {toCity} in {toCountry}. Bettween {startDate} and {endDate}""".format(fromCity = fromCity, fromCountry = countries.get(fromCountry), toCity = toCity, toCountry = countries.get(toCountry), startDate = startDate, endDate = endDate, type = transportStart)
+        print(message)
 
-    for params in settings:
-        pass
-        transport = Parser(fromCity = fromCity, fromCountry = fromCountry, toCity = toCity, toCountry = toCountry, roundTrip = roundtrip, startDate = startDate, endDate = endDate, adults = adults, params = params)
-        transport.search()
+        for params in settings:
+            pass
+            # transport = Parser(fromCity = fromCity, fromCountry = fromCountry, toCity = toCity, toCountry = toCountry, roundTrip = roundtrip, startDate = startDate, endDate = endDate, adults = adults, params = params)
+            # transport.search()
 
-    # # 127.0.0.1:5000/planner?start=2024-01-01T11%3A00&end=2024-02-01T13%3A00&roundtrip=on&adults=3&transportStart=flights&transportEnd=flight&fromCity=Barcelona&fromCountry=ES&toCountry=ES&days=12&nights=11&places[]=malaga&nights[]=11&submit=Search
-    # 127.0.0.1:5000/planner?start=2024-01-01T11%3A00&end=2024-02-01T13%3A00&roundtrip=on&adults=3&transportStart=cars&transportEnd=cars&fromCity=Barcelona&fromCountry=ES&toCountry=ES&days=12&nights=11&places[]=malaga&nights[]=11&submit=Search
+        # # 127.0.0.1:5000/planner?start=2024-01-01T11%3A00&end=2024-02-01T13%3A00&roundtrip=on&adults=3&transportStart=flights&transportEnd=flight&fromCity=Barcelona&fromCountry=ES&toCountry=ES&days=12&nights=11&places[]=malaga&nights[]=11&submit=Search
+        # 127.0.0.1:5000/planner?start=2024-01-01T11%3A00&end=2024-02-01T13%3A00&roundtrip=on&adults=3&transportStart=cars&transportEnd=cars&fromCity=Barcelona&fromCountry=ES&toCountry=ES&days=12&nights=11&places[]=malaga&nights[]=11&submit=Search
 
-    if (roundtrip == "on"):
-        return render_template('planner.html')
+        if (roundtrip != "on"):
+            # handle back trip
+            print("Handle back trip")
 
-    # handle back trip
-    print("Handle back trip")
+            settings = config[transportEnd]
 
-    settings = config[transportEnd]
+            for params in settings:
 
-    for params in settings:
-        # reverse places and dates
+                # reverse places and dates
+                newEndDate = endDate[:10] +"T" + backTime
 
-        transport = Parser(fromCity = places[-1], fromCountry = toCountry, toCity = fromCity, toCountry = fromCountry, roundTrip = "off", startDate = endDate, endDate = endDate, adults = adults, params = params)
-        transport.search()
+                transport = Parser(fromCity = places[-1], fromCountry = toCountry, toCity = fromCity, toCountry = fromCountry, roundTrip = "off", startDate = endDate, endDate = newEndDate, adults = adults, params = params)
+                transport.search()
+    print("Search hotels!")
 
     return render_template('planner.html')
 

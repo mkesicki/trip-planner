@@ -15,30 +15,35 @@
         <div>
             <label>Start trip: <input type="datetime-local" name="start" id="startTime" /></label> - <label>End trip: <input type="datetime-local" name="end" id="endTime" /></label>
         </div>
-        <div><label>Is it round trip? <input type="checkbox" name="roundtrip" id="roundtrip" /></label></div>
+        <div>
+            <label>Is it round trip? <input type="checkbox" name="roundtrip" id="roundtrip" /></label>
+            <label>Find hotels only ? <input type="checkbox" name="hotelsOnly" id="hotelsOnly" /></label>
+        </div>
 
         <div><label>Number of adults <input type="number" name="adults" id="adults" min="1" value="1" /></label></div>
 
-        <div class="transportType">
-            <div><label>Transport type start:
-                <select name="transportStart" id="transportStart">
-                    <option value="trains">Train</option>
-                    <option value="flights">Plane</option>
-                    <option value="cars">Car</option>
-                </select>
-                </label>
-            </div>
+        <div id="transportContainer">
+            <div class="transportType">
+                <div><label>Transport type start:
+                    <select name="transportStart" id="transportStart">
+                        <option value="trains">Train</option>
+                        <option value="flights">Plane</option>
+                        <option value="cars">Car</option>
+                    </select>
+                    </label>
+                </div>
 
-            <div id="transportEndDiv"><label>Transport type end:
-                <select name="transportEnd" id="transportEnd">
-                    <option value="trains">Train</option>
-                    <option value="flights">Plane</option>
-                    <option value="cars">Car</option>
-                </select>
-                </label>
+                <div id="transportEndDiv"><label>Transport type end:
+                    <select name="transportEnd" id="transportEnd">
+                        <option value="trains">Train</option>
+                        <option value="flights">Plane</option>
+                        <option value="cars">Car</option>
+                    </select>
+                    </label>
+                    <span id="backTimeContainer"><label>Estimated return time (necessary for car return)<input type="time" name="backTime" id="backTime"/></label></span>
+                </div>
             </div>
         </div>
-
             <dl>
                 <dt>
                     <label> Trip from: <input type="text" name="fromCity" placeholder="city" value="Barcelona"></label>

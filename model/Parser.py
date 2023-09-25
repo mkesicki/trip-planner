@@ -4,7 +4,6 @@ import airportsdata
 import webbrowser
 import importlib.util
 
-from dateutil.relativedelta import *
 from country_list import countries_for_language
 
 class Parser:
@@ -23,11 +22,6 @@ class Parser:
         self.countries = dict(countries_for_language('en'))
         self.start = datetime.datetime.strptime(startDate,"%Y-%m-%dT%H:%M")
         self.end = datetime.datetime.strptime(endDate,"%Y-%m-%dT%H:%M")
-
-        #for cars if start date and end date are equall -> we need to add some time offset (time of returinng car can not be same as pickup)
-        # get offset time from google maps ? take it from form ? or just add 8 hours
-        if self.start == self.end:
-            self.end = self.end + relativedelta(hours=+8)
 
         self.startTrip = self.start.strftime(self.params.get("dateFormat"))
         self.endTrip = self.end.strftime(self.params.get("dateFormat"))

@@ -1,5 +1,5 @@
 var nights = 0;
-
+document.getElementById("backTimeContainer").style.display = "none";
 // handle is round trip checkbox
 document.getElementById("roundtrip").addEventListener("click", function() {
 
@@ -8,6 +8,25 @@ document.getElementById("roundtrip").addEventListener("click", function() {
     } else {
         document.getElementById("transportEndDiv").style.display = "inline";
     }
+});
+
+// handle is hotels only checkbox
+document.getElementById("hotelsOnly").addEventListener("click", function() {
+
+  if (this.checked)  {
+     document.getElementById("transportContainer").style.display = "none";
+  } else {
+      document.getElementById("transportContainer").style.display = "inline";
+  }
+});
+
+//handle dates update
+document.getElementById("transportEnd").addEventListener("change", function(){
+  if(this.value == 'cars') {
+      document.getElementById("backTimeContainer").style.display = "inline";
+  } else {
+    document.getElementById("backTimeContainer").style.display = "none";
+  }
 });
 
 //handle dates update
@@ -150,7 +169,6 @@ dragList.addEventListener('drop', handleDrop);
     draggedItem.style.opacity = '';
     draggedItem = null;
   }
-
 
   function validateNights() {
     console.log("validateNights");
