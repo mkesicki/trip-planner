@@ -1,3 +1,4 @@
+import os
 import json
 import datetime
 import time
@@ -22,7 +23,6 @@ def planner():
     args = request.args
 
     fromCountry = args['fromCountry']
-    # toCountry = args['toCountry']
     startDate = args['start']
     endDate = args['end']
     backTime = args['backTime']
@@ -47,19 +47,20 @@ def planner():
     nights = args.getlist('nights[]')
     adults = args['adults']
 
-    filePath = "static/configs/config-" + fromCountry.lower() + ".json"
+    basePath = Path(os.getcwd())
+    filePath = basePath  / "static" / "configs" / ("config-" + fromCountry.lower() + ".json")
 
     #Read config files
-    path = Path(filePath)
     configLocal = {}
-    if path.is_file():
-        f = open(filePath, "r")
-        configLocal = json.loads(f.read())
-        f.close()
+    if filePath.is_file():
+         with filePath.open('r+') as fp:
+          print("localconfig")
+          configLocal = json.loads(fp.read())
 
-    f = open("static/configs/config.json", "r")
-    configMain = json.loads(f.read())
-    f.close()
+    path = basePath / "static" / "configs" / "config.json"
+    with path.open('r+') as fp:
+        print("main config")
+        configMain = json.loads(fp.read())
 
     config = {
         "cars": configMain["cars"] + configLocal["cars"],
@@ -71,9 +72,6 @@ def planner():
     # handle start trip transport
     settings = config[transportStart]
     toCity = places[0]
-
-
-    print("Too countryAAA: " + toCountry)
 
     if hotelsOnly != "on":
         message = """Searching {type} from {fromCity} in {fromCountry} to {toCity} in {toCountry}. Bettween {startDate} and {endDate}""".format(fromCity = fromCity, fromCountry = countries.get(fromCountry), toCity = toCity, toCountry = countries.get(toCountry), startDate = startDate, endDate = endDate, type = transportStart)
@@ -114,15 +112,15 @@ def planner():
             fromCity = ""
             toCity = place
 
-            transport = Parser(fromCity = fromCity, fromCountry = fromCountry, toCity = toCity, toCountry = countries[country], roundTrip = roundtrip,
+            hotels = Parser(fromCity = fromCity, fromCountry = fromCountry, toCity = toCity, toCountry = countries[country], roundTrip = roundtrip,
                                startDate = hotelCheckin.strftime("%Y-%m-%dT%H:%M"),
                                endDate = hotelCheckout.strftime("%Y-%m-%dT%H:%M"),
                                adults = adults, params = params)
-            transport.search()
+            hotels.search()
             hotelCheckin = hotelCheckout
             time.sleep(3)
 
-    return render_template('planner.html')
+    return render_template('planner.html', countries = countries)
 
 if __name__ == "__main__":
     app.run(debug=True)

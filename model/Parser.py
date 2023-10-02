@@ -3,6 +3,7 @@ import datetime
 import airportsdata
 import webbrowser
 import importlib.util
+from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException
 
 from country_list import countries_for_language
 
@@ -52,10 +53,18 @@ class Parser:
 
             if importlib.util.find_spec("model."+company,"./" + company +".py") is not None:
 
-                print("Parse: " + company)
-                module = importlib.import_module("model."+company,"./" + company +".py")
-                obj = getattr(module, company)()
-                obj.parse(self.fromCity, self.fromCountry, self.toCity, self.toCountry, self.roundTrip == "on", self.start, self.end, self.adults, self.params)
+                try:
+                    print("Parse: " + company)
+                    module = importlib.import_module("model."+company,"./" + company +".py")
+                    obj = getattr(module, company)()
+                    obj.parse(self.fromCity, self.fromCountry, self.toCity, self.toCountry, self.roundTrip == "on", self.start, self.end, self.adults, self.params)
+                except NoSuchElementException as e:
+                    print("Handle selenium exception:")
+                    print(e)
+                except ElementClickInterceptedException as e:
+                    print("Handle selenium exception:")
+                    print(e)
+
 
     def findAirportCode(self,  country : str, city : str, type : str = "IATA") -> str:
 

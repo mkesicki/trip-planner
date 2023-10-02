@@ -7,9 +7,35 @@
         <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='main.css')}}"></link>
     </head>
     <body>
+
         <div class="intro">
-            <h1>Please check newly opened tabs </h1>
-            <p>Please remember to double check results (be carefull with pickup/dropoff locations)</p>
+            <h1>Please check newly opened tabs and browser windows</h1>
+            <p>Please remember to double check results (be carefull with pickup/dropoff locations, dates and number of passangers).</p>
         </div>
+
+        <div>
+            <p>Trip from <span class="bold">{{ request.args.get('fromCity').title() }}</span> in <span class="bold">{{ countries[request.args.get('fromCountry')] }}</span> / starting at <span class="bold">{{ request.args.get('start') }}</span> </p>
+            <p>to</p>
+            <p><span class="bold">{{ request.args.getlist('places[]')[-1].title() }}</span> in <span class="bold">{{ countries[request.args.get('toCountry')] }}</span> / ending at <span class="bold">{{ request.args.get('end') }}</span> </p>
+        </div>
+
+        <div>
+            <p>Travel by <span class="bold">{{ request.args.get('transportStart').title()[0:-1] }}</span> [start] & <span class="bold">{{ request.args.get('transportEnd').title()[0:-1] }}</span> [back]
+        </div>
+
+        <div> Stay in:
+            <ul>
+                {% for i in  range(request.args.getlist('places[]') | length) %}
+                    <li> <span class="bold">{{request.args.getlist('nights[]')[i]}}</span> <span class="italic">night(s) in</span> <span class="bold">{{ request.args.getlist('places[]')[i].title() }}</span> </li>
+                {% endfor %}
+            </ul>
+
+
+        </div>
+
+
+<div>{{context}}</div>
+
+
     </body>
 </html>

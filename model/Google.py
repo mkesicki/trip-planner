@@ -40,8 +40,10 @@ class Google:
 
         # handle passengers number
         currentAdults = 1
-        browser.find_element(By.XPATH, config.get("adultsInit")).click()
-        time.sleep(2)
+
+        if int(adults) > 1:
+            browser.find_element(By.XPATH, config.get("adultsInit")).click()
+            time.sleep(2)
 
         while currentAdults < int(adults):
 

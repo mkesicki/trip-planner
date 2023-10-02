@@ -39,3 +39,11 @@ body {
     color:green;
     font-weight: bold;
 }
+
+.italic {
+    font-style: italic;
+}
+
+.bold {
+    font-weight: bold;
+}
