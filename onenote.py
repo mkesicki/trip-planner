@@ -27,8 +27,8 @@ def prepareOneNoteContent(city : str, country: str, data : str, kml : str, home:
     data = addLinksToPlaces(city, country, data)
 
     header = """--MyAppPartBoundary
-Content-Disposition: form-data; name="Presentation"
-Content-Type: text/html
+Content-Disposition:form-data; name="Presentation"
+Content-Type:text/html; charset="utf-8"
 
 <!DOCTYPE html>
 <html>
@@ -39,7 +39,7 @@ Content-Type: text/html
     <body>
         <p><b>Mapa mia:</b></p>
         <div>&nbsp;</div>
-    <p><b>Driving directions:</b></p>
+        <p><b>Driving directions:</b></p>
         <div class="directions"><a href="https://www.google.com/maps/dir/{home}/{city}">Driving Directions from {home}</a></div>
         <div>&nbsp;</div>
         <p><b>Points of interest:</b></p>""".format(city = city.title(), country = country.title(), home = home.title())
@@ -55,15 +55,13 @@ Content-Type: text/html
     for page in pages.split(","):
          pagesHTML = pagesHTML + "<li class=\"page\"><a href=\"" + page + "\">" + page + "</a></li>"
 
-    pagesContent = """
-        <div>&nbsp;</div>
+    pagesContent = """<div>&nbsp;</div>
         <p><b>Reference pages:</b></p>
         <ul class="pages">
             {pagesHTML}
         </ul>""".format(pagesHTML = pagesHTML)
 
-    wikilocContent = """
-       <div>&nbsp;</div>
+    wikilocContent = """<div>&nbsp;</div>
         <p><b>Hiki y Bici (WikiLoc):<b></p>
         <div>
             <ul>
@@ -73,30 +71,22 @@ Content-Type: text/html
                 <li>Query No Loop: <a href="{qnl}">Link</a></li>
             </ul>
         </div>
-        <object
-            data-attachment="map.kml"
-            data="name:map"
-            type="text/text" />
-        </body></html>
-        """.format(pl = wikiloc["placeLoop"], pnl = wikiloc["placeNoLoop"], ql = wikiloc["queryLoop"], qnl = wikiloc["queryNoLoop"])
+        <object data-attachment="map.kml" data="name:map" type="text/xml" />""".format(pl = wikiloc["placeLoop"], pnl = wikiloc["placeNoLoop"], ql = wikiloc["queryLoop"], qnl = wikiloc["queryNoLoop"])
 
-    page = header + data + pagesContent + wikilocContent + """
-
+    page = header + data + pagesContent + wikilocContent + """</body></html>
 --MyAppPartBoundary
-Content-Disposition: form-data; name="map"
-Content-Type: text/text
+Content-Disposition:form-data; name="map"
+Content-Type: text/xml; charset="utf-8"
 
 {kml}
 --MyAppPartBoundary--
 """.format(kml = kml)
 
-    return page.replace("\n", "\r\n")
+    return page
 
 def insertPage(city, country, page):
 
     token = get_token()
-
-    # token = ""
 
     sectionId = os.environ['OneNote_Section_Id']
 
@@ -118,7 +108,7 @@ def insertPage(city, country, page):
 
             return
 
-    # manage map creation
+    #manage map creation
     webbrowser.open("https://www.google.com/maps/d/mp?hl=en&authuser=0&state=create")
     pyperclip.copy(query.title())
     time.sleep(15)
@@ -133,9 +123,12 @@ def insertPage(city, country, page):
 
     print("Create new page in OneNote")
 
-    headers = {'Authorization': 'Bearer ' + token, "Content-Type": "multipart/form-data; boundary=MyAppPartBoundary"}
+    headers = {
+        'Authorization': 'Bearer ' + token,
+        "Content-Type": "multipart/form-data; boundary=MyAppPartBoundary"
+    }
 
-    response = requests.post("https://graph.microsoft.com/v1.0/me/onenote/sections/" + sectionId + "/pages", data = page, headers = headers);
+    response = requests.post("https://graph.microsoft.com/v1.0/me/onenote/sections/" + sectionId + "/pages", data = page.replace("\n", "\r\n").encode("utf-8"), headers = headers);
 
     print(response.json())
 

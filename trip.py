@@ -23,6 +23,7 @@ pages = ','.join([str(page) for page in pages])
 # OpenAI
 data = planner(city = args.city, country = args.country, pages = pages, min = args.min, max = args.max)
 
+# print(data)
 # No API for MyMaps (but there is a hope) -> https://issuetracker.google.com/issues/35820262
 # Workaround :
 # - create KML file with values returned from geocode API

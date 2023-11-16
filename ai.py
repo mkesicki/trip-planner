@@ -1,13 +1,13 @@
 import os
 import openai
-import json
 import re
 
 from openai_functions import Conversation
 
 openai.api_key = os.environ['OPENAI_API_KEY']
-
-conversation = Conversation(model='gpt-3.5-turbo-16k')
+#gpt-4-1106-preview
+#gpt-3.5-turbo-1106
+conversation = Conversation(model='gpt-3.5-turbo-1106')
 
 @conversation.add_function
 def getPlacesOfInterest(city: str, country: str, pages: str, max : int, min : int) -> dict:
@@ -40,7 +40,7 @@ def planner(city, country, min: int, max : int , pages : str = "https://www.trip
                 During your search use recommendations from {pages}.
                 Provide name, short description. {{places}}
                 Return between {min} to {max} attractions.
-                Return as HTML with following structure:
+                Return as HTML with following structure, return only HTML:
                 <ol class="places">
                     <li class="place">
                         <dl class="name"><b>{{place name}}</b></dl>
@@ -48,14 +48,12 @@ def planner(city, country, min: int, max : int , pages : str = "https://www.trip
                             <dt class="links-{{counter}}"></dt>
                         </dl>
                     </li>
-                <ol>
-               """.format(city = city, country = country, min = min, max = max, pages = pages)
+                <ol>""".format(city = city, country = country, min = min, max = max, pages = pages)
 
     data =  conversation.ask(prompt)
 
     # example of returned data -> for testing
-
-    #      data = """<ol class="places">
+    #     data = """<ol class="places">
     #     <li class="place">
     #         <dl class="name"><b>Alcazaba</b></dl>
     #         <dt class="description"><i>The Alcazaba is a medieval fortress in Almeria, Spain. It was built by the Moors in the 10th century and is one of the largest Muslim fortifications in Spain. The fortress offers panoramic views of the city and the Mediterranean Sea. Visitors can explore its impressive walls, towers, gardens, and courtyards.</i></dt>
@@ -68,4 +66,6 @@ def planner(city, country, min: int, max : int , pages : str = "https://www.trip
     #     </li>
     # </ol>"""
 
-    return data
+    m = re.search('```html(.+)```', data, re.S)
+    return m.group(1)
+    #return m.group(1).strip().replace("\n","")

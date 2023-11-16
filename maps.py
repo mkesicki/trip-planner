@@ -42,7 +42,7 @@ def prepareKMLFile(city : str, country : str, data : str) -> str:
     print(file)
     print("* End of KML File * Also stored in " + filename + " file.")
 
-    f = open("maps/" + filename, "w" )
+    f = open("maps/" + filename, "w", encoding='utf-8')
     f.write(file)
     f.close()
 
