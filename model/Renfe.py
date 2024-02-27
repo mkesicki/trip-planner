@@ -1,9 +1,12 @@
+import re
 import time
 import datetime
 import requests
 import json
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.firefox.service import Service as FirefoxService
+from webdriver_manager.firefox import GeckoDriverManager
 
 class Renfe:
 
@@ -15,14 +18,19 @@ class Renfe:
         config = params.get("params")
 
         estaciones = requests.get("https://www.renfe.com/content/dam/renfe/es/General/buscadores/javascript/estacionesEstaticas.js")
-        estaciones = estaciones.text.replace("var estacionesEstatico=", "").replace(";", "")
+
+        pattern = r'var estacionesEstatico=(.+);'
+        match = re.search(pattern, estaciones.text)
+
+        if match:
+            estaciones = match.group(1)
 
         stations = json.loads(estaciones)
 
         departureCode = self.findStation(fromCity, stations, True)
         arrivalCode = self.findStation(toCity, stations, True)
 
-        browser = webdriver.Firefox()
+        browser = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()))
         browser.get(params.get("url"))
         time.sleep(5)
 
@@ -73,7 +81,10 @@ class Renfe:
             if strict == False and station.get("desgEstacion").lower() == city.lower() + " (todas)":
                 result = station
                 break
-            elif strict == True and station.get("desgEstacion").lower() == city.lower():
+            elif result == "" and strict == False and station.get("desgEstacion").lower() == city.lower() + "-":
+                result = station
+                break
+            elif strict == True and city.lower() in station.get("desgEstacion").lower():
                 result = station
                 break
 

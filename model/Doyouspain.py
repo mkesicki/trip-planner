@@ -3,6 +3,8 @@ import datetime
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.firefox.service import Service as FirefoxService
+from webdriver_manager.firefox import GeckoDriverManager
 
 class DoYouSpain:
 
@@ -18,7 +20,7 @@ class DoYouSpain:
         config = params.get("params")
 
         print("Open Browser " + url)
-        browser = webdriver.Firefox()
+        browser = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()))
         browser.get(url)
         browser.implicitly_wait(10) # seconds
 
