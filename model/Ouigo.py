@@ -4,6 +4,8 @@ import datetime
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.firefox.service import Service as FirefoxService
+from webdriver_manager.firefox import GeckoDriverManager
 
 class Ouigo:
 
@@ -14,7 +16,7 @@ class Ouigo:
 
         config = params.get("params")
 
-        browser = webdriver.Firefox()
+        browser = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()))
         browser.get(params.get("url"))
         time.sleep(2)
 

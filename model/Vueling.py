@@ -4,6 +4,8 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import *
+from selenium.webdriver.firefox.service import Service as FirefoxService
+from webdriver_manager.firefox import GeckoDriverManager
 
 class Vueling:
 
@@ -22,7 +24,7 @@ class Vueling:
         self.config= params.get("params")
 
         print("Open Browser " + url)
-        browser = webdriver.Firefox()
+        browser = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()))
         browser.get(url)
         browser.implicitly_wait(10) # seconds
 
@@ -46,7 +48,7 @@ class Vueling:
 
         if roundTrip != True:
             print("Handle one way trip")
-            browser.find_element(By.ID, get("oneWay")).click()
+            browser.find_element(By.ID, self.config.get("oneWay")).click()
             browser.implicitly_wait(5) # seconds
             browser.find_element(By.ID, "calendarDaysTable" + startTrip).click()
         else:

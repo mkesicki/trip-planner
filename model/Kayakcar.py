@@ -13,7 +13,7 @@ class KayakCar:
         timeStart = startDate.strftime("%H")
         timeEnd = endDate.strftime("%H")
 
-        searchUrl ="https://www.kayak.es/mvm/smartyv2/search?f=j&s=car&where={city}&lc_cc={contry}".format(city = fromCity, contry = fromCountry)
+        searchUrl ="https://www.kayak.es/mvm/smartyv2/search?f=j&s=car&where={city}&lc_cc={country}".format(city = fromCity, country = fromCountry)
         response = requests.post(searchUrl)
         first = response.json()[0]
         fromCity = fromCity + "-c" + first["id"]
@@ -24,7 +24,7 @@ class KayakCar:
             first = response.json()[0]
             toCity = toCity + "-c" + first["id"]
 
-        url = params.get("url") if (roundTrip == "on") else  params.get("urlOneWay")
+        url = params.get("url") if (roundTrip == True) else  params.get("urlOneWay")
         url = url + params.get("queryParams")
         url = url.format(departure = fromCity, arrival = toCity, dateFrom = startTrip, dateBack = endTrip, timeStart = timeStart, timeEnd = timeEnd)
 

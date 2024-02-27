@@ -4,6 +4,8 @@ import datetime
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.firefox.service import Service as FirefoxService
+from webdriver_manager.firefox import GeckoDriverManager
 
 class Google:
 
@@ -16,7 +18,7 @@ class Google:
         endTrip = endDate.strftime(params.get("dateFormat"))
 
         print("Open Browser " + url)
-        browser = webdriver.Firefox()
+        browser = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()))
         browser.get(url)
         browser.implicitly_wait(10) # seconds
 
