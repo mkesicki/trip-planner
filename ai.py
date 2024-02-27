@@ -1,37 +1,9 @@
-import os
-import openai
 import re
 
-from openai_functions import Conversation
+from langchain_community.chat_models import ChatOpenAI
+from langchain.schema import HumanMessage, SystemMessage
 
-openai.api_key = os.environ['OPENAI_API_KEY']
-#gpt-4-1106-preview
-#gpt-3.5-turbo-1106
-conversation = Conversation(model='gpt-3.5-turbo-1106')
-
-@conversation.add_function
-def getPlacesOfInterest(city: str, country: str, pages: str, max : int, min : int) -> dict:
-
-        """Get touristic places in a city and country.
-
-        Args:
-            city (str): The city, e.g., Barcelona
-            country (str): The country to use, e.g., Spain
-            pages (str): The pages where to look attractions for, e.g. https://www.thecrazytourist.com
-            max (integer): Maximum number of returned attractions, e.g. 10
-            min (integer): Minimum number of returned attractions, e.g. 5
-
-        """
-
-        return {
-            "city": city,
-            "country": country,
-            "pages": pages,
-            "max": max,
-            "min": min,
-        }
-
-def planner(city, country, min: int, max : int , pages : str = "https://www.tripadvisor.com, https://www.thecrazytourist.com") :
+def planner(city, country, min: int, max : int , pages : str = "https://www.tripadvisor.com, https://www.thecrazytourist.com", model='gpt-3.5-turbo-1106') :
 
     print("Let's plan trip to " + city.title() + " in " + country.title())
 
@@ -50,7 +22,23 @@ def planner(city, country, min: int, max : int , pages : str = "https://www.trip
                     </li>
                 <ol>""".format(city = city, country = country, min = min, max = max, pages = pages)
 
-    data =  conversation.ask(prompt)
+    chat = ChatOpenAI(model_name=model, temperature=0.2)
+    response = chat.invoke(
+    [
+         SystemMessage(
+            content=[
+                {"type": "text", "text": "You are heplfull trip advisor. Please follow instruction in customer prompt."},
+            ]
+        ),
+        HumanMessage(
+            content=[
+                {"type": "text", "text": prompt},
+            ]
+        )
+    ]
+    )
+
+    return response.content
 
     # example of returned data -> for testing
     #     data = """<ol class="places">
@@ -68,4 +56,3 @@ def planner(city, country, min: int, max : int , pages : str = "https://www.trip
 
     m = re.search('```html(.+)```', data, re.S)
     return m.group(1)
-    #return m.group(1).strip().replace("\n","")

@@ -1,5 +1,4 @@
 import argparse
-import requests
 
 from ai import *
 from onenote import *
