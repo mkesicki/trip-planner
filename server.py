@@ -4,7 +4,7 @@ import datetime
 import time
 
 from pathlib import Path
-from flask import Flask, render_template, request
+from flask import Flask , render_template, request
 from country_list import countries_for_language
 from model.Parser import Parser
 
@@ -39,6 +39,11 @@ def planner():
         hotelsOnly = args['hotelsOnly']
     else:
         hotelsOnly = "off"
+
+    if 'transportOnly' in args:
+        transportOnly = args['tranportOnly']
+    else:
+        transportOnly = "off"
 
     transportStart = args['transportStart']
     transportEnd = args['transportEnd']
@@ -98,27 +103,29 @@ def planner():
                 transport = Parser(fromCity = places[-1], fromCountry = toCountry, toCity = fromCity, toCountry = fromCountry, roundTrip = "off", startDate = endDate, endDate = newEndDate, adults = adults, params = params)
                 transport.search()
 
-    print("Search hotels!")
-    settings = config["hotels"]
+    if transportOnly != "on":
 
-    for params in settings:
+        print("Search hotels!")
+        settings = config["hotels"]
 
-        hotelCheckin = datetime.datetime.strptime(startDate,"%Y-%m-%dT%H:%M")
+        for params in settings:
 
-        for place in places:
+            hotelCheckin = datetime.datetime.strptime(startDate,"%Y-%m-%dT%H:%M")
 
-            hotelCheckout = hotelCheckin + datetime.timedelta(days=int(nights[places.index(place)]))
-            country =  tripCountries[places.index(place)]
-            fromCity = ""
-            toCity = place
+            for place in places:
 
-            hotels = Parser(fromCity = fromCity, fromCountry = fromCountry, toCity = toCity, toCountry = countries[country], roundTrip = roundtrip,
-                               startDate = hotelCheckin.strftime("%Y-%m-%dT%H:%M"),
-                               endDate = hotelCheckout.strftime("%Y-%m-%dT%H:%M"),
-                               adults = adults, params = params)
-            hotels.search()
-            hotelCheckin = hotelCheckout
-            time.sleep(3)
+                hotelCheckout = hotelCheckin + datetime.timedelta(days=int(nights[places.index(place)]))
+                country =  tripCountries[places.index(place)]
+                fromCity = ""
+                toCity = place
+
+                hotels = Parser(fromCity = fromCity, fromCountry = fromCountry, toCity = toCity, toCountry = countries[country], roundTrip = roundtrip,
+                                startDate = hotelCheckin.strftime("%Y-%m-%dT%H:%M"),
+                                endDate = hotelCheckout.strftime("%Y-%m-%dT%H:%M"),
+                                adults = adults, params = params)
+                hotels.search()
+                hotelCheckin = hotelCheckout
+                time.sleep(3)
 
     return render_template('planner.html', countries = countries)
 
