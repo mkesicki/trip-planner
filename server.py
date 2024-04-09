@@ -41,7 +41,7 @@ def planner():
         hotelsOnly = "off"
 
     if 'transportOnly' in args:
-        transportOnly = args['tranportOnly']
+        transportOnly = args['transportOnly']
     else:
         transportOnly = "off"
 
@@ -59,12 +59,10 @@ def planner():
     configLocal = {}
     if filePath.is_file():
          with filePath.open('r+') as fp:
-          print("localconfig")
           configLocal = json.loads(fp.read())
 
     path = basePath / "static" / "configs" / "config.json"
     with path.open('r+') as fp:
-        print("main config")
         configMain = json.loads(fp.read())
 
     config = {

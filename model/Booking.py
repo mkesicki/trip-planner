@@ -17,7 +17,6 @@ class Booking:
 
         data = {"query":toCity + " " + toCountry,"language":"en-us","size":5}
 
-        print(json.dumps(data))
         response = requests.post("https://accommodations.booking.com/autocomplete.json", data = json.dumps(data), headers = headers)
 
         place = response.json().get("results")[0]
