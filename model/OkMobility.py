@@ -1,10 +1,7 @@
-import time
 import datetime
 import webbrowser
-
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.firefox.options import Options
+import requests
+import re
 
 class OkMobility:
 
@@ -38,31 +35,15 @@ class OkMobility:
 
         return ""
 
-    def getLocation(self, city : str):
+    def getLocation(self, city : str) -> str:
 
-        print("Open Headless Browser " + self.url)
+        response = requests.get("https://okmobility.com/api/search-widget?type=offices&lang=en&search=" + city + " train station")
 
-        options = Options()
-        options.add_argument("-headless") # Here
-        browser = webdriver.Firefox(options=options)
-        browser.get(self.url)
-        browser.implicitly_wait(15) # seconds
+        pickupId = ""
 
-        # # accept cookies
-        # if "cookiesAccept" in config:
-        #     cookiesAccept = browser.find_element(By.ID, config.get("cookiesAccept"))
-        #     cookiesAccept.click()
+        data_value = re.search(r'data-value="(\d+)"', response.text)
 
-        departure = browser.find_element(By.ID, self.config.get("departure"))
-        departure.send_keys(city)
-        time.sleep(2)
-
-        command = "document.querySelector('.tt-suggestion').click();"
-        browser.execute_script(command)
-        browser.implicitly_wait(10) # seconds
-
-        image = browser.find_element(By.CSS_SELECTOR, "img.rounded-circle")
-        pickupId = image.get_property("alt")
-        browser.close()
+        if data_value:
+            pickupId = data_value.group(1)
 
         return pickupId

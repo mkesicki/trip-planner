@@ -19,15 +19,19 @@ class DoYouSpain:
         url = params.get("url")
         config = params.get("params")
 
-        print("Open Browser " + url)
+        print("Open Browser " + url + " - note this one is slow. So be patient!")
         browser = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()))
         browser.get(url)
         browser.implicitly_wait(10) # seconds
 
         # accept cookies
-        # if "cookiesAccept" in config:
-        #     cookiesAccept = browser.find_element(By.ID, config.get("cookiesAccept"))
-        #     cookiesAccept.click()
+        if "cookiesAccept" in config:
+            try:
+                cookiesAccept = browser.find_element(By.ID, config.get("cookiesAccept"))
+                cookiesAccept.click()
+            except:
+                print("No cookies to accept")
+                pass
 
         departure = browser.find_element(By.ID, config.get("departure"))
         departure.send_keys(fromCity)

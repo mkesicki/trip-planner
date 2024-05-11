@@ -7,7 +7,7 @@
             "dateFormat" : "%d/%m/%Y",
             "queryParams" : "",
             "params" : {
-                "cookiesAccept" : "",
+                "cookiesAccept" : "checkAllOptions",
                 "departure" :  "pickup",
                 "arrival" : "dropoff",
                 "dateFrom" : "fechaRecogida",
