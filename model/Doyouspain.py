@@ -10,7 +10,7 @@ from webdriver_manager.firefox import GeckoDriverManager
 
 class DoYouSpain:
 
-    def parse(self, fromCity : str, fromCountry : str, toCity : str, toCountry : str, roundTrip : bool, startDate : datetime.date, endDate : datetime.date, adults : int, params : dict):
+    def parse(self, fromCity : str, fromCountry : str, toCity : str, toCountry : str, roundTrip : bool, startDate : datetime.date, endDate : datetime.date, adults : int, params : dict, pickupPlace : str, returnPlace : str):
 
         startTrip = startDate.strftime(params.get("dateFormat"))
         endTrip = endDate.strftime(params.get("dateFormat"))
@@ -35,7 +35,7 @@ class DoYouSpain:
                 print("No cookies to accept")
                 pass
 
-        location = self.getLocation(fromCity)
+        location = self.getLocation(fromCity, pickupPlace)
         departure = "document.getElementById('destino').value='{code}';".format(code=location["location_id"])
         browser.execute_script(departure)
 
@@ -60,7 +60,7 @@ class DoYouSpain:
             print("Handle one way trip")
             browser.find_element(By.ID, config.get("oneWay")).click()
 
-            location = self.getLocation(toCity)
+            location = self.getLocation(toCity, returnPlace)
             arrival = "document.getElementById('destino_final').value='{code}';".format(code=location["location_id"])
             arrival = "document.getElementById('{id}').value='{value}';".format(id=config.get("arrival"),value=location["location_name"])
             browser.execute_script(arrival)
@@ -70,15 +70,17 @@ class DoYouSpain:
 
         return ""
 
-    def getLocation(self, city : str) -> str:
+    def getLocation(self, city : str, place : str) -> str:
 
-        city = city + " train station"
+        city = city + " " + place
         data = {
             "destino": city,
             "idoma": "es",
             "origien": "DY",
             "experimiento": "[CAR]"
         }
+
+        print("Get location for " + city)
 
         response = requests.post("https://www.doyouspain.com/do/ajax/autocomplete", data = data)
         print(response)

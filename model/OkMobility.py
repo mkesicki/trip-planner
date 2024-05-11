@@ -5,7 +5,7 @@ import re
 
 class OkMobility:
 
-    def parse(self, fromCity : str, fromCountry : str, toCity : str, toCountry : str, roundTrip : bool, startDate : datetime.date, endDate : datetime.date, adults : int, params : dict):
+    def parse(self, fromCity : str, fromCountry : str, toCity : str, toCountry : str, roundTrip : bool, startDate : datetime.date, endDate : datetime.date, adults : int, params : dict, pickupPlace : str, returnPlace : str):
 
         startTrip = startDate.strftime(params.get("dateFormat"))
         endTrip = endDate.strftime(params.get("dateFormat"))
@@ -16,12 +16,12 @@ class OkMobility:
         self.url = params.get("initUrl")
         self.config = params.get("params")
 
-        pickupId = self.getLocation(fromCity)
+        pickupId = self.getLocation(fromCity, pickupPlace)
 
         if (roundTrip == True):
             dropoffId = pickupId
         else:
-            dropoffId = self.getLocation(toCity)
+            dropoffId = self.getLocation(toCity, returnPlace)
 
         print("pikup location: " + pickupId)
         print("dropoff location: " + dropoffId)
@@ -35,9 +35,11 @@ class OkMobility:
 
         return ""
 
-    def getLocation(self, city : str) -> str:
+    def getLocation(self, city : str, place : str) -> str:
 
-        response = requests.get("https://okmobility.com/api/search-widget?type=offices&lang=en&search=" + city + " train station")
+        response = requests.get("https://okmobility.com/api/search-widget?type=offices&lang=en&search=" + city + " " + place)
+
+        print("https://okmobility.com/api/search-widget?type=offices&lang=en&search=" + city + " " + place)
 
         pickupId = ""
 

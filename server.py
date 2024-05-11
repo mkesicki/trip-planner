@@ -2,6 +2,7 @@ import os
 import json
 import datetime
 import time
+import sys
 
 from pathlib import Path
 from flask import Flask , render_template, request
@@ -52,6 +53,17 @@ def planner():
     nights = args.getlist('nights[]')
     adults = args['adults']
 
+
+
+    if transportStart == "cars":
+        pickupPlace = args['pickupPlace']
+
+    if transportEnd == "cars":
+        returnPlace = args['returnPlace']
+
+    if roundtrip == "on":
+        returnPlace = pickupPlace
+
     basePath = Path(os.getcwd())
     filePath = basePath  / "static" / "configs" / ("config-" + fromCountry.lower() + ".json")
 
@@ -82,11 +94,8 @@ def planner():
 
         for params in settings:
 
-            transport = Parser(fromCity = fromCity, fromCountry = fromCountry, toCity = toCity, toCountry = toCountry, roundTrip = roundtrip, startDate = startDate, endDate = endDate, adults = adults, params = params)
+            transport = Parser(fromCity = fromCity, fromCountry = fromCountry, toCity = toCity, toCountry = toCountry, roundTrip = roundtrip, startDate = startDate, endDate = endDate, adults = adults, params = params, pickupPlace = pickupPlace, returnPlace = returnPlace)
             transport.search()
-
-        # # 127.0.0.1:5000/planner?start=2024-01-01T11%3A00&end=2024-02-01T13%3A00&roundtrip=on&adults=3&transportStart=flights&transportEnd=flight&fromCity=Barcelona&fromCountry=ES&toCountry=ES&days=12&nights=11&places[]=malaga&nights[]=11&submit=Search
-        # 127.0.0.1:5000/planner?start=2024-01-01T11%3A00&end=2024-02-01T13%3A00&roundtrip=on&adults=3&transportStart=cars&transportEnd=cars&fromCity=Barcelona&fromCountry=ES&toCountry=ES&days=12&nights=11&places[]=malaga&nights[]=11&submit=Search
 
         if (roundtrip != "on"):
             # handle back trip
@@ -95,11 +104,10 @@ def planner():
             settings = config[transportEnd]
 
             for params in settings:
-
                 # reverse places and dates
                 newEndDate = endDate[:10] +"T" + backTime
 
-                transport = Parser(fromCity = places[-1], fromCountry = toCountry, toCity = fromCity, toCountry = fromCountry, roundTrip = "off", startDate = endDate, endDate = newEndDate, adults = adults, params = params)
+                transport = Parser(fromCity = places[-1], fromCountry = toCountry, toCity = fromCity, toCountry = fromCountry, roundTrip = "off", startDate = endDate, endDate = newEndDate, adults = adults, params = params, pickupPlace = returnPlace, returnPlace = pickupPlace)
                 transport.search()
 
     if transportOnly != "on":
@@ -131,3 +139,7 @@ def planner():
 if __name__ == "__main__":
     app.run(debug=True)
     # app.run()
+
+
+# # 127.0.0.1:5000/planner?start=2024-01-01T11%3A00&end=2024-02-01T13%3A00&roundtrip=on&adults=3&transportStart=flights&transportEnd=flight&fromCity=Barcelona&fromCountry=ES&toCountry=ES&days=12&nights=11&places[]=malaga&nights[]=11&submit=Search
+# 127.0.0.1:5000/planner?start=2024-01-01T11%3A00&end=2024-02-01T13%3A00&roundtrip=on&adults=3&transportStart=cars&transportEnd=cars&fromCity=Barcelona&fromCountry=ES&toCountry=ES&days=12&nights=11&places[]=malaga&nights[]=11&submit=Search
