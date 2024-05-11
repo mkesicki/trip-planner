@@ -1,6 +1,5 @@
 {
     "cars": [
-
         {
             "url" : "https://www.kayak.es/cars/{departure}/{dateFrom}-{timeStart}h/{dateBack}-{timeEnd}h/",
             "urlOneWay" : "https://www.kayak.es/cars/{departure}/{arrival}/{dateFrom}-{timeStart}h/{dateBack}-{timeEnd}h/",
@@ -16,17 +15,8 @@
             "company" : "OkMobility",
             "dateFormat" : "%d-%m-%Y",
             "queryParams" : "",
-            "params" : {
-                "cookiesAccept" : "c-p-bn",
-                "departure" :  "pickupplaceBanner",
-                "arrival" : "",
-                "dateFrom" : "",
-                "dateBack" : "",
-                "timeFrom" : "",
-                "timeBack" : "",
-                "submit" : "",
-                "oneWay" : ""
-            }
+            "params" :""
+
         },
         {
             "url" : "https://www.sixt.com/betafunnel/#/offerlist?zen_pu_location={departureLocationId}&zen_do_location={arrivalLocationId}&zen_pu_title={departureLocation}&zen_do_title={arrivalLocation}&zen_pu_time={startTrip}&zen_do_time={endTrip}&zen_pu_branch_id={departureBranch}&zen_do_branch_id={arrivalBranch}",

@@ -6,7 +6,6 @@ class KayakCar:
 
     def parse(self, fromCity : str, fromCountry : str, toCity : str, toCountry : str, roundTrip : bool, startDate : datetime.date, endDate : datetime.date, adults : int, params : dict):
 
-
         startTrip = startDate.strftime(params.get("dateFormat"))
         endTrip = endDate.strftime(params.get("dateFormat"))
 
