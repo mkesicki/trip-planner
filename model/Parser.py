@@ -62,7 +62,6 @@ class Parser:
                     obj = getattr(module, company)()
 
                     if self.has_arg(obj.parse, 'pickupPlace') and self.has_arg(obj.parse, 'returnPlace') is True:
-                        print("%R#$%#$%$#%#$")
                         obj.parse(self.fromCity, self.fromCountry, self.toCity, self.toCountry, self.roundTrip == "on",     self.start, self.end, self.adults, self.params, self.pickupPlace, self.returnPlace)
                     else:
                         obj.parse(self.fromCity, self.fromCountry, self.toCity, self.toCountry, self.roundTrip == "on",     self.start, self.end, self.adults, self.params)

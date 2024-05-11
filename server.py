@@ -53,8 +53,6 @@ def planner():
     nights = args.getlist('nights[]')
     adults = args['adults']
 
-
-
     if transportStart == "cars":
         pickupPlace = args['pickupPlace']
 
