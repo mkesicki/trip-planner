@@ -25,13 +25,22 @@
 
         <div id="transportContainer">
             <div class="transportType">
-                <div><label>Transport type start:
+                <div id="transportStartDiv"><label>Transport type start:
                     <select name="transportStart" id="transportStart">
                         <option value="trains">Train</option>
                         <option value="flights">Plane</option>
                         <option value="cars">Car</option>
                     </select>
                     </label>
+                    <div id="carPickupPlace">
+                        <label>Where to pickup car ?
+                            <select id="pickuplPlace" name="pickupPlace">
+                                <option value="">All</option>
+                                <option value="airport">Airport</option>
+                                <option value="train station">Train Statopm</option>
+                            </select>
+                        </label>
+                    </div>
                 </div>
 
                 <div id="transportEndDiv"><label>Transport type end:
@@ -41,7 +50,18 @@
                         <option value="cars">Car</option>
                     </select>
                     </label>
-                    <span id="backTimeContainer"><label>Estimated return time (necessary for car return)<input type="time" name="backTime" id="backTime"/></label></span>
+                    <div id="backTimeContainer">
+                        <label>Estimated return time (necessary for car return)<input type="time" name="backTime" id="backTime"/></label>
+                        <div id="carReturnPlace">
+                            <label>Where to return car ?
+                                <select id="returnPlace" name="returnPlace">
+                                    <option value="">All</option>
+                                    <option value="airport">Airport</option>
+                                    <option value="train station">Train Statopm</option>
+                                </select>
+                            </label>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -60,7 +80,6 @@
                     This value will also set a config file to use during searching
                 </dt>
             </dl>
-
             <dl>
                 <dt><label for="toCountry">Trip to Country:</label>
                     <select id="toCountry" name="toCountry">
@@ -70,19 +89,16 @@
                     </select>
                 </dt>
             </dl>
-
             <div><label>Trip days: <input type="number" name="days" id="days" readonly="readonly" /></label></div>
             <div>
                 <label>Nights to stay: <input type="number" name="nights" id="nights" readonly="readonly" /></label>
                 <label>Nights left: <input type="number" name="nightsLeft" id="nightsLeft" readonly="readonly" class="nightsLeft" /></label>
             </div>
         </div>
-
         <div id="placesDiv" style="margin-top:10px;">Add places which you want to visit
             <div><input type="button" id="placesButton" name="placesButton" value="Add New Place" /></div>
             <ul id="placesList"></ul>
         </div>
-
         <div><input type="submit" id="submit" name="submit" value="Search" disabled="disabled" /></div>
     </form>
     <script src="{{url_for('static', filename='main.js')}}"></script>

@@ -1,5 +1,8 @@
 var nights = 0;
 document.getElementById("backTimeContainer").style.display = "none";
+document.getElementById("carPickupPlace").style.display = "none";
+
+
 // handle is round trip checkbox
 document.getElementById("roundtrip").addEventListener("click", function() {
 
@@ -20,12 +23,20 @@ document.getElementById("hotelsOnly").addEventListener("click", function() {
   }
 });
 
-//handle dates update
+//handle transport update
 document.getElementById("transportEnd").addEventListener("change", function(){
   if(this.value == 'cars') {
       document.getElementById("backTimeContainer").style.display = "inline";
   } else {
     document.getElementById("backTimeContainer").style.display = "none";
+  }
+});
+
+document.getElementById("transportStart").addEventListener("change", function(){
+  if(this.value == 'cars') {
+      document.getElementById("carPickupPlace").style.display = "inline";
+  } else {
+    document.getElementById("carPickupPlace").style.display = "none";
   }
 });
 

@@ -3,13 +3,14 @@ import datetime
 import airportsdata
 import webbrowser
 import importlib.util
-from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException
+import inspect
 
+from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException
 from country_list import countries_for_language
 
 class Parser:
 
-    def __init__(self, fromCity : str, fromCountry : str, toCity : str, toCountry : str, roundTrip : bool, startDate : str, endDate : str, adults : int, params : dict):
+    def __init__(self, fromCity : str, fromCountry : str, toCity : str, toCountry : str, roundTrip : bool, startDate : str, endDate : str, adults : int, params : dict, pickupPlace : str = "", returnPlace : str = ""):
 
         self.fromCity = fromCity
         self.fromCountry = fromCountry
@@ -21,6 +22,8 @@ class Parser:
         self.adults = adults
         self.params = params
         self.countries = dict(countries_for_language('en'))
+        self.pickupPlace = pickupPlace
+        self.returnPlace = returnPlace
 
         self.start = datetime.datetime.strptime(startDate,"%Y-%m-%dT%H:%M")
         self.end = datetime.datetime.strptime(endDate,"%Y-%m-%dT%H:%M")
@@ -57,7 +60,12 @@ class Parser:
                     print("Parse: " + company)
                     module = importlib.import_module("model."+company,"./" + company +".py")
                     obj = getattr(module, company)()
-                    obj.parse(self.fromCity, self.fromCountry, self.toCity, self.toCountry, self.roundTrip == "on", self.start, self.end, self.adults, self.params)
+
+                    if self.has_arg(obj.parse, 'pickupPlace') and self.has_arg(obj.parse, 'returnPlace') is True:
+                        obj.parse(self.fromCity, self.fromCountry, self.toCity, self.toCountry, self.roundTrip == "on",     self.start, self.end, self.adults, self.params, self.pickupPlace, self.returnPlace)
+                    else:
+                        obj.parse(self.fromCity, self.fromCountry, self.toCity, self.toCountry, self.roundTrip == "on",     self.start, self.end, self.adults, self.params)
+
                 except NoSuchElementException as e:
                     print("Handle selenium exception:")
                     print(e)
@@ -76,4 +84,9 @@ class Parser:
                 return code
 
         return ""
+
+    def has_arg(self, method, arg_name):
+        signature = inspect.signature(method)
+        parameters = signature.parameters
+        return arg_name in parameters
 
