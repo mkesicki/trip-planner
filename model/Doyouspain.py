@@ -39,7 +39,7 @@ class DoYouSpain:
         departure = "document.getElementById('destino').value='{code}';".format(code=location["location_id"])
         browser.execute_script(departure)
 
-        departure = "document.getElementById('{id}').value='{value}';".format(id=config.get("departure"),value=location["location_id"])
+        departure = "document.getElementById('{id}').value='{value}';".format(id=config.get("departure"),value=location["location_name"])
         browser.execute_script(departure)
 
         commanDateFrom = "document.getElementById('{dateFrom}').value='{date}';".format(dateFrom = config.get("dateFrom"), date = startTrip)
@@ -62,7 +62,7 @@ class DoYouSpain:
 
             location = self.getLocation(toCity)
             arrival = "document.getElementById('destino_final').value='{code}';".format(code=location["location_id"])
-            arrival = "document.getElementById('{id}').value='{value}';".format(id=config.get("arrival"),value=location["location_id"])
+            arrival = "document.getElementById('{id}').value='{value}';".format(id=config.get("arrival"),value=location["location_name"])
             browser.execute_script(arrival)
 
         #submit form
