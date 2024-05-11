@@ -76,13 +76,12 @@ def planner():
     settings = config[transportStart]
     toCity = places[0]
 
-    print(config)
-
     if hotelsOnly != "on":
         message = """Searching {type} from {fromCity} in {fromCountry} to {toCity} in {toCountry}. Bettween {startDate} and {endDate}""".format(fromCity = fromCity, fromCountry = countries.get(fromCountry), toCity = toCity, toCountry = countries.get(toCountry), startDate = startDate, endDate = endDate, type = transportStart)
         print(message)
 
         for params in settings:
+
             transport = Parser(fromCity = fromCity, fromCountry = fromCountry, toCity = toCity, toCountry = toCountry, roundTrip = roundtrip, startDate = startDate, endDate = endDate, adults = adults, params = params)
             transport.search()
 
