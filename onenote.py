@@ -96,7 +96,15 @@ def insertPage(city, country, page):
 
     query = (city + " " + country).lower()
 
-    response = requests.get('https://graph.microsoft.com/v1.0/me/onenote/pages?search="'+ query +'"&select=title,id', headers = headers)
+    query_params = {
+        "filter": f"contains(tolower(title), '{query}')",
+        "select":"id,title",
+        "top": 1
+    }
+
+    # https://graph.microsoft.com/v1.0/me/onenote/sections/{sectionId}/pages?filter=contains(tolower(title),'madrid')&top=1&$select=id,title
+
+    response = requests.get(f'https://graph.microsoft.com/v1.0/me/onenote/sections/{sectionId}/pages', headers = headers, params=query_params)
 
     # check if page exists
     for title in response.json()["value"]:
