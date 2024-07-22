@@ -1,9 +1,9 @@
 import re
 
-from langchain_community.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 from langchain.schema import HumanMessage, SystemMessage
 
-def planner(city, country, min: int, max : int , pages : str = "https://www.tripadvisor.com, https://www.thecrazytourist.com", model='gpt-3.5-turbo-1106') :
+def planner(city, country, min: int, max : int , pages : str = "https://www.tripadvisor.com, https://www.thecrazytourist.com", model='gpt-4o') :
 
     print("Let's plan trip to " + city.title() + " in " + country.title())
 
@@ -21,7 +21,6 @@ def planner(city, country, min: int, max : int , pages : str = "https://www.trip
                         </dl>
                     </li>
                 <ol>""".format(city = city, country = country, min = min, max = max, pages = pages)
-
     chat = ChatOpenAI(model_name=model, temperature=0.2)
     response = chat.invoke(
     [

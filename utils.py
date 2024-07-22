@@ -1,5 +1,4 @@
 import requests
-
 from bs4 import BeautifulSoup
 
 def getTripAdvisorLink(city, country) :
@@ -76,4 +75,3 @@ def getCrazyTouristLink(city, country) :
 def getReferencePages(city : str , country : str) -> list:
 
     return [getTripAdvisorLink(city, country) , getCrazyTouristLink(city, country)]
-
