@@ -4,9 +4,6 @@ import webbrowser
 import requests
 import json
 
-from selenium.webdriver.common.by import By
-from selenium.webdriver.firefox.options import Options
-
 class Sixt:
 
     def parse(self, fromCity : str, fromCountry : str, toCity : str, toCountry : str, roundTrip : bool, startDate : datetime.date, endDate : datetime.date, adults : int, params : dict):
