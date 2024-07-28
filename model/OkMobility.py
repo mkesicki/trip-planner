@@ -37,7 +37,7 @@ class OkMobility:
 
     def getLocation(self, city : str, place : str) -> str:
 
-        response = requests.get("https://okmobility.com/api/search-widget?type=offices&lang=en&search=" + city + " " + place)
+        response = requests.get("https://okmobility.com/api/search-widget?type=rent-offices&lang=en&search=" + city + " " + place)
 
         print("https://okmobility.com/api/search-widget?type=offices&lang=en&search=" + city + " " + place)
 
