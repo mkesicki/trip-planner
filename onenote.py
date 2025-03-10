@@ -4,23 +4,18 @@ import easygui
 import time
 import os
 import pyperclip
+import webbrowser
 
 from utils import *
 
 def get_token():
 
-    print("Get access token from graph explorer")
-
-    #wasted so many time trying to get token programmatically
-    webbrowser.open("https://developer.microsoft.com/en-us/graph/graph-explorer")
-    time.sleep(7)
-    token = easygui.enterbox("Please paste access token from graph explorer")
-
-    if token == None or token == "":
-        print("No token provided. Exiting.")
+    try:
+        with open("/tmp/onenote.txt", "r") as f:
+            return f.read()
+    except:
+        print("No token found. Exiting.")
         exit(1)
-
-    return token
 
 def prepareOneNoteContent(city : str, country: str, data : str, kml : str, home: str, pages : str) -> str :
 
@@ -139,5 +134,7 @@ def insertPage(city, country, page):
     response = requests.post("https://graph.microsoft.com/v1.0/me/onenote/sections/" + sectionId + "/pages", data = page.replace("\n", "\r\n").encode("utf-8"), headers = headers);
 
     print(response.json())
+
+    os.remove("/tmp/onenote.txt")
 
     return ""
