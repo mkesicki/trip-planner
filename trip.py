@@ -4,6 +4,9 @@ from ai import *
 from onenote import *
 from maps import *
 from utils import *
+import webbrowser
+import subprocess
+import time
 
 parser = argparse.ArgumentParser(description = 'Plan a trip for selected place in given country.')
 parser.add_argument('city', help = 'a city for which to plan the trip')
@@ -12,6 +15,15 @@ parser.add_argument('--min', default = 15,  help = 'Minimum number of returned a
 parser.add_argument('--max', default = 20,  help = 'Maximum number of returned attractions, e.g. 10. Default 20')
 parser.add_argument('--country', default = "Spain",  help = 'Optional country. Default Spain')
 parser.add_argument('--home', default = "Barcelona",  help = 'Optional home city, it is used to find direction  to selected city. Default Barcelona')
+
+
+if not os.path.isfile("/tmp/onenote.txt"):
+    print("Triggering login action to OneNote")
+    process = subprocess.Popen(["python", "server.py"])
+    time.sleep(3)
+    webbrowser.open("http://localhost:5000/login")
+    input("Press any key to continue...")
+
 
 args = parser.parse_args()
 

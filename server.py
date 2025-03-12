@@ -3,19 +3,76 @@ import json
 import datetime
 import time
 import sys
+import webbrowser
+import requests
+import msal
 
 from pathlib import Path
-from flask import Flask , render_template, request
+from flask import Flask , render_template, request, redirect
 from country_list import countries_for_language
 from model.Parser import Parser
 
 countries = dict(countries_for_language('en'))
 
+client_id = os.environ.get("ONE_NOTE_CLIENT_ID")
+client_secret = os.environ.get("ONE_NOTE_CLIENT_SECRET")
+authority = "https://login.microsoftonline.com/common"
+redirect_uri = os.environ.get("ONE_NOTE_REDIRECT_URI")
+scopes = ["https://graph.microsoft.com/Notes.Read",
+          "https://graph.microsoft.com/Notes.ReadWrite"]
+
 app = Flask(__name__)
+
+app_client = msal.ConfidentialClientApplication(
+    client_id=client_id,
+    client_credential=client_secret,
+    authority=authority
+)
+
+@app.route("/login")
+def login():
+    # Get auth URL
+    auth_url = app_client.get_authorization_request_url(
+        scopes=scopes,
+        redirect_uri=redirect_uri
+    )
+    # Open browser for user to authenticate
+    webbrowser.open(auth_url)
+    return "Authentication started. Check your browser."
+
+@app.route("/callback")
+def callback():
+
+    auth_code = request.args.get("code")
+    result = app_client.acquire_token_by_authorization_code(
+        code=auth_code,
+        scopes=scopes,
+        redirect_uri=redirect_uri
+    )
+
+    with open("/tmp/onenote.txt", "w+") as f:
+        f.write(result["access_token"])
+    return "Authentication successful! You can close this window."
+
+# Function to refresh token when needed
+# def refresh_token():
+#     if "refresh_token" not in token_cache:
+#         print("No refresh token available. Please authenticate first.")
+#         return False
+
+#     result = app_client.acquire_token_by_refresh_token(
+#         refresh_token=token_cache["refresh_token"],
+#         scopes=scopes
+#     )
+
+#     if "access_token" in result:
+#         token_cache.update(result)
+#         return True
+#     return False
 
 @app.route("/")
 def start():
-       return render_template('index.html', countries = countries)
+    return render_template('index.html', countries = countries)
 
 @app.route("/planner", methods=['GET'])
 
