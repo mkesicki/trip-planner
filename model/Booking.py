@@ -15,15 +15,18 @@ class Booking:
             "Host": "accommodations.booking.com"
         }
 
-        data = {"query":toCity + " " + toCountry,"language":"en-us","size":5}
+        data = {"query":toCity + "," + toCountry,"language":"en-us","size":5}
 
         response = requests.post("https://accommodations.booking.com/autocomplete.json", data = json.dumps(data), headers = headers)
+
+        print(response.json().get("results"))
 
         place = response.json().get("results")[0]
 
         url = params.get("url")
         url = url + params.get("queryParams")
-        url = url.format(arrival = place.get("value").replace(" ", "%20"), dateFrom = startTrip, dateBack = endTrip, adults = adults, destId = place.get("labels")[0].get("dest_id"))
+        value = place.get("value").replace(", ", ",").replace(" ", "%20")
+        url = url.format(arrival = value, dateFrom = startTrip, dateBack = endTrip, adults = adults, destId = place.get("labels")[0].get("dest_id"))
 
         print("url: " + url)
         webbrowser.open(url)
