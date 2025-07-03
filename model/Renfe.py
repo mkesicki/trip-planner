@@ -7,90 +7,77 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.service import Service as FirefoxService
 from webdriver_manager.firefox import GeckoDriverManager
+from .data_classes import SearchQuery
 
 class Renfe:
 
-    def parse(self, fromCity : str, fromCountry : str, toCity : str, toCountry : str, roundTrip : bool, startDate : datetime.date, endDate : datetime.date, adults : int, params : dict):
+    def parse(self, query: SearchQuery):
+        startTrip = query.start_date.strftime(query.params.get("dateFormat"))
+        endTrip = query.end_date.strftime(query.params.get("dateFormat"))
+        config = query.params.get("params")
 
-        startTrip = startDate.strftime(params.get("dateFormat"))
-        endTrip = endDate.strftime(params.get("dateFormat"))
-
-        config = params.get("params")
-
-        estaciones = requests.get("https://www.renfe.com/content/dam/renfe/es/General/buscadores/javascript/estacionesEstaticas.js")
-
+        estaciones_req = requests.get("https://www.renfe.com/content/dam/renfe/es/General/buscadores/javascript/estacionesEstaticas.js")
         pattern = r'var estacionesEstatico=(.+);'
-        match = re.search(pattern, estaciones.text)
+        match = re.search(pattern, estaciones_req.text)
 
         if match:
-            estaciones = match.group(1)
+            estaciones_json = match.group(1)
+            stations = json.loads(estaciones_json)
+            departureCode = self.findStation(query.from_city, stations, True)
+            arrivalCode = self.findStation(query.to_city, stations, True)
 
-        stations = json.loads(estaciones)
+            browser = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()))
+            browser.get(query.params.get("url"))
+            time.sleep(5)
 
-        departureCode = self.findStation(fromCity, stations, True)
-        arrivalCode = self.findStation(toCity, stations, True)
+            # accept cookies
+            if "cookiesAccept" in config:
+                cookiesAccept = browser.find_element(By.ID, config.get("cookiesAccept"))
+                cookiesAccept.click()
 
-        browser = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()))
-        browser.get(params.get("url"))
-        time.sleep(5)
-
-        # accept cookies
-        if "cookiesAccept" in config:
-            cookiesAccept = browser.find_element(By.ID, config.get("cookiesAccept"))
-            cookiesAccept.click()
-
-        command = "document.querySelector('.rf-search__filters').style.display='block';"
-        browser.execute_script(command)
-
-        command = "document.querySelector(\"input[name='" + config.get("adults") + "']\").value='" + str(adults) + "';"
-        browser.execute_script(command)
-
-        command = "document.querySelector(\"input[name='" + config.get("departure") + "']\").value='" + departureCode.get("clave") + "';"
-        browser.execute_script(command)
-
-        command = "document.querySelector(\"input[name='" + config.get("arrival") + "']\").value='" + arrivalCode.get("clave") + "';"
-        browser.execute_script(command)
-
-        command = "document.querySelector(\"input[name='" + config.get("dateFrom") + "']\").value='" + startTrip + "';"
-        browser.execute_script(command)
-
-        print("roundTrip: " + str(roundTrip))
-
-        if roundTrip == True:
-
-            print("Set date back for roundtrip")
-            command = "document.querySelector(\"input[name='" + config.get("dateBack") + "']\").value='" + endTrip + "';"
+            command = "document.querySelector('.rf-search__filters').style.display='block';"
             browser.execute_script(command)
 
-        else :
-            print("Set only to one way trip")
-            command = "document.querySelector('button.rf-select__list-text:first-child').click();"
+            command = f"document.querySelector(\"input[name='{config.get('adults')}']\").value='{query.adults}';"
             browser.execute_script(command)
 
-        command = "document.querySelector('form').submit();"
-        browser.execute_script(command)
+            command = f"document.querySelector(\"input[name='{config.get('departure')}']\").value='{departureCode.get('clave')}';"
+            browser.execute_script(command)
 
-        return ""
+            command = f"document.querySelector(\"input[name='{config.get('arrival')}']\").value='{arrivalCode.get('clave')}';"
+            browser.execute_script(command)
 
-    def findStation(self, city, stations :dict, strict :bool = False) -> str:
+            command = f"document.querySelector(\"input[name='{config.get('dateFrom')}']\").value='{startTrip}';"
+            browser.execute_script(command)
 
-        result = ""
+            if query.round_trip:
+                print("Set date back for roundtrip")
+                command = f"document.querySelector(\"input[name='{config.get('dateBack')}']\").value='{endTrip}';"
+                browser.execute_script(command)
+            else:
+                print("Set only to one way trip")
+                command = "document.querySelector('button.rf-select__list-text:first-child').click();"
+                browser.execute_script(command)
 
+            command = "document.querySelector('form').submit();"
+            browser.execute_script(command)
+
+    def findStation(self, city, stations: dict, strict: bool = False) -> dict:
+        result = {}
         for station in stations:
-
-            if strict == False and station.get("desgEstacion").lower() == city.lower() + " (todas)":
+            desgEstacion_lower = station.get("desgEstacion", "").lower()
+            city_lower = city.lower()
+            if not strict and desgEstacion_lower == f"{city_lower} (todas)":
                 result = station
                 break
-            elif result == "" and strict == False and station.get("desgEstacion").lower() == city.lower() + "-":
+            elif not result and not strict and desgEstacion_lower == f"{city_lower}-":
                 result = station
                 break
-            elif strict == True and city.lower() in station.get("desgEstacion").lower():
+            elif strict and city_lower in desgEstacion_lower:
                 result = station
                 break
-
-        if strict == True and result == "":
+        if strict and not result:
             result = self.findStation(city, stations, False)
-
         return result
 
 

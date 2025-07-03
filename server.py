@@ -6,197 +6,214 @@ import sys
 import webbrowser
 import requests
 import msal
-
 from pathlib import Path
-from flask import Flask , render_template, request, redirect
+from flask import Flask, render_template, request, redirect
 from country_list import countries_for_language
 from model.Parser import Parser
+from model.data_classes import TripRequest, TransportDetails, AccommodationDetails, SearchQuery
 
+# --- Flask App ---
 countries = dict(countries_for_language('en'))
-
 client_id = os.environ.get("ONE_NOTE_CLIENT_ID")
 client_secret = os.environ.get("ONE_NOTE_CLIENT_SECRET")
 authority = "https://login.microsoftonline.com/common"
 redirect_uri = os.environ.get("ONE_NOTE_REDIRECT_URI")
-scopes = ["https://graph.microsoft.com/Notes.Read",
-          "https://graph.microsoft.com/Notes.ReadWrite"]
+scopes = ["https://graph.microsoft.com/Notes.Read", "https://graph.microsoft.com/Notes.ReadWrite"]
 
 app = Flask(__name__)
-
 app_client = msal.ConfidentialClientApplication(
     client_id=client_id,
     client_credential=client_secret,
     authority=authority
 )
 
+# --- Helper Functions ---
+def parse_request(args: dict) -> TripRequest:
+    """Parses the request arguments and returns a TripRequest object."""
+
+    transport_start_type = args.get('transportStart')
+    transport_end_type = args.get('transportEnd')
+
+    transport_start = TransportDetails(
+        transport_type=transport_start_type,
+        pickup_place=args.get('pickupPlace') if transport_start_type == 'cars' else None
+    )
+
+    transport_end = TransportDetails(
+        transport_type=transport_end_type,
+        return_place=args.get('returnPlace') if transport_end_type == 'cars' else None
+    )
+
+    if args.get('roundtrip') == "on":
+        transport_end.return_place = transport_start.pickup_place
+
+    places_list = args.getlist('places[]')
+    nights_list = args.getlist('nights[]')
+    trip_countries_list = args.getlist("countries[]")
+
+    accommodations = [
+        AccommodationDetails(
+            place=place,
+            nights=int(nights_list[i]),
+            country=trip_countries_list[i]
+        ) for i, place in enumerate(places_list)
+    ]
+
+    return TripRequest(
+        from_country=args.get('fromCountry'),
+        to_country=args.get('toCountry'),
+        from_city=args.get('fromCity'),
+        start_date=args.get('start'),
+        end_date=args.get('end'),
+        back_time=args.get('backTime'),
+        adults=int(args.get('adults')),
+        round_trip=args.get('roundtrip') == 'on',
+        hotels_only=args.get('hotelsOnly') == 'on',
+        transport_only=args.get('transportOnly') == 'on',
+        transport_start=transport_start,
+        transport_end=transport_end,
+        places=accommodations
+    )
+
+def handle_search(trip: TripRequest):
+    """Handles the search logic for the given trip."""
+    basePath = Path(os.getcwd())
+    filePath = basePath / "static" / "configs" / f"config-{trip.from_country.lower()}.json"
+
+    configLocal = {}
+    if filePath.is_file():
+        with filePath.open('r+') as fp:
+            configLocal = json.load(fp)
+
+    path = basePath / "static" / "configs" / "config.json"
+    with path.open('r+') as fp:
+        configMain = json.load(fp)
+
+    config = {
+        "cars": configMain.get("cars", []) + configLocal.get("cars", []),
+        "flights": configMain.get("flights", []) + configLocal.get("flights", []),
+        "trains": configMain.get("trains", []) + configLocal.get("trains", []),
+        "hotels": configMain.get("hotels", []) + configLocal.get("hotels", [])
+    }
+
+    # Handle start trip transport
+    if not trip.hotels_only:
+        handle_transport_search(trip, config)
+
+    # Handle hotel search
+    if not trip.transport_only:
+        handle_hotel_search(trip, config)
+
+def handle_transport_search(trip: TripRequest, config: dict):
+    """Handles the transport search logic."""
+    settings = config.get(trip.transport_start.transport_type, [])
+    to_city = trip.places[0].place
+
+    message = (
+        f"Searching {trip.transport_start.transport_type} from {trip.from_city} "
+        f"in {countries.get(trip.from_country)} to {to_city} in {countries.get(trip.to_country)}. "
+        f"Between {trip.start_date} and {trip.end_date}"
+    )
+    print(message)
+
+    for params in settings:
+        query = SearchQuery(
+            from_city=trip.from_city,
+            from_country=trip.from_country,
+            to_city=to_city,
+            to_country=trip.to_country,
+            start_date=datetime.datetime.strptime(trip.start_date, "%Y-%m-%dT%H:%M"),
+            end_date=datetime.datetime.strptime(trip.end_date, "%Y-%m-%dT%H:%M"),
+            adults=trip.adults,
+            round_trip=trip.round_trip,
+            params=params,
+            pickup_place=trip.transport_start.pickup_place,
+            return_place=trip.transport_end.return_place
+        )
+        transport = Parser(query)
+        transport.search()
+
+    if not trip.round_trip:
+        print("Handling return trip")
+        settings = config.get(trip.transport_end.transport_type, [])
+        for params in settings:
+            new_end_date = f"{trip.end_date[:10]}T{trip.back_time}"
+            query = SearchQuery(
+                from_city=trip.places[-1].place,
+                from_country=trip.to_country,
+                to_city=trip.from_city,
+                to_country=trip.from_country,
+                start_date=datetime.datetime.strptime(trip.end_date, "%Y-%m-%dT%H:%M"),
+                end_date=datetime.datetime.strptime(new_end_date, "%Y-%m-%dT%H:%M"),
+                adults=trip.adults,
+                round_trip=False,
+                params=params,
+                pickup_place=trip.transport_end.return_place,
+                return_place=trip.transport_start.pickup_place
+            )
+            transport = Parser(query)
+            transport.search()
+
+def handle_hotel_search(trip: TripRequest, config: dict):
+    """Handles the hotel search logic."""
+    print("Searching for hotels!")
+    settings = config.get("hotels", [])
+    hotel_checkin = datetime.datetime.strptime(trip.start_date, "%Y-%m-%dT%H:%M")
+
+    for place_details in trip.places:
+        hotel_checkout = hotel_checkin + datetime.timedelta(days=place_details.nights)
+
+        for params in settings:
+            query = SearchQuery(
+                from_city="",
+                from_country=trip.from_country,
+                to_city=place_details.place,
+                to_country=countries.get(place_details.country),
+                start_date=hotel_checkin,
+                end_date=hotel_checkout,
+                adults=trip.adults,
+                round_trip=trip.round_trip,
+                params=params
+            )
+            hotels = Parser(query)
+            hotels.search()
+
+        hotel_checkin = hotel_checkout
+        time.sleep(3)
+
+# --- Routes ---
 @app.route("/login")
 def login():
-    # Get auth URL
-    auth_url = app_client.get_authorization_request_url(
-        scopes=scopes,
-        redirect_uri=redirect_uri
-    )
-    # Open browser for user to authenticate
+    auth_url = app_client.get_authorization_request_url(scopes=scopes, redirect_uri=redirect_uri)
     webbrowser.open(auth_url)
     return "Authentication started. Check your browser."
 
 @app.route("/callback")
 def callback():
-
     auth_code = request.args.get("code")
     result = app_client.acquire_token_by_authorization_code(
         code=auth_code,
         scopes=scopes,
         redirect_uri=redirect_uri
     )
-
     with open("/tmp/onenote.txt", "w+") as f:
         f.write(result["access_token"])
     return "Authentication successful! You can close this window."
 
-# Function to refresh token when needed
-# def refresh_token():
-#     if "refresh_token" not in token_cache:
-#         print("No refresh token available. Please authenticate first.")
-#         return False
-
-#     result = app_client.acquire_token_by_refresh_token(
-#         refresh_token=token_cache["refresh_token"],
-#         scopes=scopes
-#     )
-
-#     if "access_token" in result:
-#         token_cache.update(result)
-#         return True
-#     return False
-
 @app.route("/")
 def start():
-    return render_template('index.html', countries = countries)
+    return render_template('index.html', countries=countries)
 
 @app.route("/planner", methods=['GET'])
-
 def planner():
-
-    args = request.args
-
-    fromCountry = args['fromCountry']
-    startDate = args['start']
-    endDate = args['end']
-    backTime = args['backTime']
-    tripCountries = args.getlist("countries[]")
-
-    toCountry = tripCountries[-1]
-
-    if 'roundtrip' in args:
-        roundtrip = args['roundtrip']
-    else:
-        roundtrip = "off"
-
-    if 'hotelsOnly' in args:
-        hotelsOnly = args['hotelsOnly']
-    else:
-        hotelsOnly = "off"
-
-    if 'transportOnly' in args:
-        transportOnly = args['transportOnly']
-    else:
-        transportOnly = "off"
-
-    transportStart = args['transportStart']
-    transportEnd = args['transportEnd']
-    fromCity = args['fromCity']
-    places = args.getlist('places[]')
-    nights = args.getlist('nights[]')
-    adults = args['adults']
-    pickupPlace = ""
-    returnPlace = ""
-
-    if transportStart == "cars":
-        pickupPlace = args['pickupPlace']
-
-    if transportEnd == "cars":
-        returnPlace = args['returnPlace']
-
-    if roundtrip == "on":
-        returnPlace = pickupPlace
-
-    basePath = Path(os.getcwd())
-    filePath = basePath  / "static" / "configs" / ("config-" + fromCountry.lower() + ".json")
-
-    #Read config files
-    configLocal = {}
-    if filePath.is_file():
-         with filePath.open('r+') as fp:
-          configLocal = json.loads(fp.read())
-
-    path = basePath / "static" / "configs" / "config.json"
-    with path.open('r+') as fp:
-        configMain = json.loads(fp.read())
-
-    config = {
-        "cars": configMain["cars"] + configLocal["cars"],
-        "flights": configMain["flights"] + configLocal["flights"],
-        "trains": configMain["trains"] + configLocal["trains"],
-        "hotels": configMain["hotels"] + configLocal["hotels"]
-    }
-
-    # handle start trip transport
-    settings = config[transportStart]
-    toCity = places[0]
-
-    if hotelsOnly != "on":
-        message = """Searching {type} from {fromCity} in {fromCountry} to {toCity} in {toCountry}. Bettween {startDate} and {endDate}""".format(fromCity = fromCity, fromCountry = countries.get(fromCountry), toCity = toCity, toCountry = countries.get(toCountry), startDate = startDate, endDate = endDate, type = transportStart)
-        print(message)
-
-        for params in settings:
-
-            transport = Parser(fromCity = fromCity, fromCountry = fromCountry, toCity = toCity, toCountry = toCountry, roundTrip = roundtrip, startDate = startDate, endDate = endDate, adults = adults, params = params, pickupPlace = pickupPlace, returnPlace = returnPlace)
-            transport.search()
-
-        if (roundtrip != "on"):
-            # handle back trip
-            print("Handle back trip")
-
-            settings = config[transportEnd]
-
-            for params in settings:
-                # reverse places and dates
-                newEndDate = endDate[:10] +"T" + backTime
-
-                transport = Parser(fromCity = places[-1], fromCountry = toCountry, toCity = fromCity, toCountry = fromCountry, roundTrip = "off", startDate = endDate, endDate = newEndDate, adults = adults, params = params, pickupPlace = returnPlace, returnPlace = pickupPlace)
-                transport.search()
-
-    if transportOnly != "on":
-
-        print("Search hotels!")
-        settings = config["hotels"]
-
-        for params in settings:
-
-            hotelCheckin = datetime.datetime.strptime(startDate,"%Y-%m-%dT%H:%M")
-
-            for place in places:
-
-                hotelCheckout = hotelCheckin + datetime.timedelta(days=int(nights[places.index(place)]))
-                country =  tripCountries[places.index(place)]
-                fromCity = ""
-                toCity = place
-
-                hotels = Parser(fromCity = fromCity, fromCountry = fromCountry, toCity = toCity, toCountry = countries[country], roundTrip = roundtrip,
-                                startDate = hotelCheckin.strftime("%Y-%m-%dT%H:%M"),
-                                endDate = hotelCheckout.strftime("%Y-%m-%dT%H:%M"),
-                                adults = adults, params = params)
-                hotels.search()
-                hotelCheckin = hotelCheckout
-                time.sleep(3)
-
-    return render_template('planner.html', countries = countries)
+    try:
+        trip_request = parse_request(request.args)
+        handle_search(trip_request)
+        return render_template('planner.html', countries=countries, request=request)
+    except Exception as e:
+        print(f"An error occurred: {e}", file=sys.stderr)
+        # Optionally, render an error page or redirect
+        return f"An error occurred: {e}", 500
 
 if __name__ == "__main__":
-    app.run(debug=True)
-    # app.run()
-
-
-# # 127.0.0.1:5000/planner?start=2024-01-01T11%3A00&end=2024-02-01T13%3A00&roundtrip=on&adults=3&transportStart=flights&transportEnd=flight&fromCity=Barcelona&fromCountry=ES&toCountry=ES&days=12&nights=11&places[]=malaga&nights[]=11&submit=Search
-# 127.0.0.1:5000/planner?start=2024-01-01T11%3A00&end=2024-02-01T13%3A00&roundtrip=on&adults=3&transportStart=cars&transportEnd=cars&fromCity=Barcelona&fromCountry=ES&toCountry=ES&days=12&nights=11&places[]=malaga&nights[]=11&submit=Search
+    app.run(host='0.0.0.0', port=5000, debug=True)
