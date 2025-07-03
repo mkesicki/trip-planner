@@ -1,31 +1,39 @@
 import datetime
 import requests
 import webbrowser
+from .data_classes import SearchQuery
 
 class KayakCar:
 
-    def parse(self, fromCity : str, fromCountry : str, toCity : str, toCountry : str, roundTrip : bool, startDate : datetime.date, endDate : datetime.date, adults : int, params : dict):
+    def parse(self, query: SearchQuery):
+        startTrip = query.start_date.strftime(query.params.get("dateFormat"))
+        endTrip = query.end_date.strftime(query.params.get("dateFormat"))
 
-        startTrip = startDate.strftime(params.get("dateFormat"))
-        endTrip = endDate.strftime(params.get("dateFormat"))
+        timeStart = query.start_date.strftime("%H")
+        timeEnd = query.end_date.strftime("%H")
 
-        timeStart = startDate.strftime("%H")
-        timeEnd = endDate.strftime("%H")
-
-        searchUrl ="https://www.kayak.es/mvm/smartyv2/search?f=j&s=car&where={city}&lc_cc={country}".format(city = fromCity, country = fromCountry)
+        searchUrl = f"https://www.kayak.es/mvm/smartyv2/search?f=j&s=car&where={query.from_city}&lc_cc={query.from_country}"
         response = requests.post(searchUrl)
         first = response.json()[0]
-        fromCity = fromCity + "-c" + first["id"]
+        fromCity = f"{query.from_city}-c{first['id']}"
 
-        if roundTrip != True:
-            searchUrl ="https://www.kayak.es/mvm/smartyv2/search?f=j&s=car&where={city}&lc_cc={country}".format(city = toCity, country = toCountry)
+        toCity = ""
+        if not query.round_trip:
+            searchUrl = f"https://www.kayak.es/mvm/smartyv2/search?f=j&s=car&where={query.to_city}&lc_cc={query.to_country}"
             response = requests.post(searchUrl)
             first = response.json()[0]
-            toCity = toCity + "-c" + first["id"]
+            toCity = f"{query.to_city}-c{first['id']}"
 
-        url = params.get("url") if (roundTrip == True) else  params.get("urlOneWay")
-        url = url + params.get("queryParams")
-        url = url.format(departure = fromCity, arrival = toCity, dateFrom = startTrip, dateBack = endTrip, timeStart = timeStart, timeEnd = timeEnd)
+        url = query.params.get("url") if query.round_trip else query.params.get("urlOneWay")
+        url += query.params.get("queryParams")
+        url = url.format(
+            departure=fromCity,
+            arrival=toCity,
+            dateFrom=startTrip,
+            dateBack=endTrip,
+            timeStart=timeStart,
+            timeEnd=timeEnd
+        )
 
         print("url: " + url)
         webbrowser.open(url)

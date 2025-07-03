@@ -6,18 +6,17 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.service import Service as FirefoxService
 from webdriver_manager.firefox import GeckoDriverManager
+from .data_classes import SearchQuery
 
 class Ouigo:
 
-    def parse(self, fromCity : str, fromCountry : str, toCity : str, toCountry : str, roundTrip : bool, startDate : datetime.date, endDate : datetime.date, adults : int, params : dict):
-
-        startTrip = startDate.strftime(params.get("dateFormat"))
-        endTrip = endDate.strftime(params.get("dateFormat"))
-
-        config = params.get("params")
+    def parse(self, query: SearchQuery):
+        startTrip = query.start_date.strftime(query.params.get("dateFormat"))
+        endTrip = query.end_date.strftime(query.params.get("dateFormat"))
+        config = query.params.get("params")
 
         browser = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()))
-        browser.get(params.get("url"))
+        browser.get(query.params.get("url"))
         time.sleep(2)
 
         # accept cookies
@@ -33,13 +32,13 @@ class Ouigo:
 
         browser.find_element(By.ID, config.get("departure")).click()
         stations = browser.find_elements(By.CSS_SELECTOR, "#origin-station-input-listbox li")
-        self.findStation(fromCity, stations, browser)
+        self.findStation(query.from_city, stations, browser)
 
         browser.find_element(By.ID, config.get("arrival")).click()
         stations = browser.find_elements(By.CSS_SELECTOR, "#destination-station-input-listbox li")
-        self.findStation(toCity, stations, browser)
+        self.findStation(query.to_city, stations, browser)
 
-        command = "document.getElementById('" + config.get("dateFrom") + "').removeAttribute('readonly');"
+        command = f"document.getElementById('{config.get('dateFrom')}').removeAttribute('readonly');"
         browser.execute_script(command)
 
         startDate = browser.find_element(By.ID, config.get("dateFrom"))
@@ -48,9 +47,8 @@ class Ouigo:
         startDate.send_keys(startTrip)
         startDate.send_keys(Keys.ESCAPE)
 
-        if roundTrip == True:
-
-            command = "document.getElementById('" + config.get("dateBack") + "').removeAttribute('readonly');"
+        if query.round_trip:
+            command = f"document.getElementById('{config.get('dateBack')}').removeAttribute('readonly');"
             browser.execute_script(command)
 
             endDate = browser.find_element(By.ID, config.get("dateBack"))
@@ -59,41 +57,31 @@ class Ouigo:
             endDate.send_keys(endTrip)
             endDate.send_keys(Keys.ESCAPE)
 
-        if int(adults) > 1:
-            browser.find_element(By.XPATH,"/html/body/div[1]/div/form/div[3]/div[1]/div/div/button").click()
+        if query.adults > 1:
+            browser.find_element(By.XPATH, "/html/body/div[1]/div/form/div[3]/div[1]/div/div/button").click()
 
         time.sleep(2)
         currentAdults = 1
-
-        while currentAdults < int(adults):
+        while currentAdults < query.adults:
             print("Add passenger")
-            command = "document.querySelector('#" + config.get("adults") + "').click();"
+            command = f"document.querySelector('#{config.get('adults')}').click();"
             browser.execute_script(command)
-
-            currentAdults = currentAdults + 1
-
-            if currentAdults == int(adults):
+            currentAdults += 1
+            if currentAdults == query.adults:
                 # close passengers modal
-                browser.find_element(By.XPATH,"/html/body/div[1]/div/form/div[3]/div[1]/div/div/button").click()
+                browser.find_element(By.XPATH, "/html/body/div[1]/div/form/div[3]/div[1]/div/div/button").click()
 
-        #submit form
+        # submit form
         browser.find_element(By.XPATH, config.get("submit")).click()
 
         return ""
 
     def findStation(self, city, stations, browser):
-
         for station in stations:
             if city.lower() in station.text.lower():
-
                 station.click()
-
                 return station
-
-        print("Station for " + city + " not found!")
-        # command = "alert('Station for " + city + " not found!');"
-        # browser.execute_script(command)
-
+        print(f"Station for {city} not found!")
         return ""
 
 

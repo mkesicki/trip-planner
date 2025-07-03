@@ -6,21 +6,21 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.service import Service as FirefoxService
 from webdriver_manager.firefox import GeckoDriverManager
+from .data_classes import SearchQuery
 
 class Google:
 
-    def parse(self, fromCity : str, fromCountry : str, toCity : str, toCountry : str, roundTrip : bool, startDate : datetime.date, endDate : datetime.date, adults : int, params : dict):
+    def parse(self, query: SearchQuery):
+        url = query.params.get("url")
+        config = query.params.get("params")
 
-        url = params.get("url")
-        config = params.get("params")
-
-        startTrip = startDate.strftime(params.get("dateFormat"))
-        endTrip = endDate.strftime(params.get("dateFormat"))
+        startTrip = query.start_date.strftime(query.params.get("dateFormat"))
+        endTrip = query.end_date.strftime(query.params.get("dateFormat"))
 
         print("Open Browser " + url)
         browser = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()))
         browser.get(url)
-        browser.implicitly_wait(10) # seconds
+        browser.implicitly_wait(10)  # seconds
 
         # accept cookies
         if "cookiesAccept" in config:
@@ -29,35 +29,33 @@ class Google:
 
         departure = browser.find_element(By.XPATH, config.get("departure"))
         departure.clear()
-        departure.send_keys(fromCity)
+        departure.send_keys(query.from_city)
         confirm = browser.find_element(By.CLASS_NAME, config.get("confirmAirportClass"))
         confirm.click()
         time.sleep(1)
 
         arrival = browser.find_element(By.XPATH, config.get("arrival"))
-        arrival.send_keys(toCity)
+        arrival.send_keys(query.to_city)
         confirm = browser.find_element(By.CLASS_NAME, config.get("confirmAirportClass"))
         confirm.click()
         time.sleep(1)
 
         # handle passengers number
         currentAdults = 1
-
-        if int(adults) > 1:
+        if query.adults > 1:
             browser.find_element(By.XPATH, config.get("adultsInit")).click()
             time.sleep(2)
 
-        while currentAdults < int(adults):
-
+        while currentAdults < query.adults:
             browser.find_element(By.XPATH, config.get("adults")).click()
-            currentAdults = currentAdults + 1
+            currentAdults += 1
 
-        if int(adults) > 1:
+        if query.adults > 1:
             browser.find_element(By.XPATH, config.get("adultsConfirm")).click()
 
         time.sleep(2)
 
-        if roundTrip != True:
+        if not query.round_trip:
             print("Handle one way trip")
             browser.find_element(By.XPATH, config.get("oneWayInit")).click()
             browser.find_element(By.XPATH, config.get("oneWay")).click()
@@ -71,7 +69,7 @@ class Google:
             dateBack.send_keys(endTrip)
             dateBack.send_keys(Keys.ENTER)
 
-        #submit form
+        # submit form
         time.sleep(2)
         browser.find_element(By.XPATH, config.get("submit")).click()
 

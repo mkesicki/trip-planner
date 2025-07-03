@@ -2,49 +2,53 @@ import datetime
 import webbrowser
 import requests
 import re
+from .data_classes import SearchQuery
 
 class OkMobility:
 
-    def parse(self, fromCity : str, fromCountry : str, toCity : str, toCountry : str, roundTrip : bool, startDate : datetime.date, endDate : datetime.date, adults : int, params : dict, pickupPlace : str, returnPlace : str):
+    def parse(self, query: SearchQuery):
+        startTrip = query.start_date.strftime(query.params.get("dateFormat"))
+        endTrip = query.end_date.strftime(query.params.get("dateFormat"))
 
-        startTrip = startDate.strftime(params.get("dateFormat"))
-        endTrip = endDate.strftime(params.get("dateFormat"))
+        startTime = query.start_date.strftime("%H:00")
+        endTime = query.end_date.strftime("%H:00")
 
-        startTime = startDate.strftime("%H:00")
-        endTime = endDate.strftime("%H:00")
+        self.url = query.params.get("initUrl")
+        self.config = query.params.get("params")
 
-        self.url = params.get("initUrl")
-        self.config = params.get("params")
+        pickupId = self.getLocation(query.from_city, query.pickup_place)
 
-        pickupId = self.getLocation(fromCity, pickupPlace)
-
-        if (roundTrip == True):
+        if query.round_trip:
             dropoffId = pickupId
         else:
-            dropoffId = self.getLocation(toCity, returnPlace)
+            dropoffId = self.getLocation(query.to_city, query.return_place)
 
-        print("pikup location: " + pickupId)
+        print("pickup location: " + pickupId)
         print("dropoff location: " + dropoffId)
 
-        url =  params.get("url")
-        url = url + params.get("queryParams")
-        url = url.format(id = pickupId, dropoffId = dropoffId, departure = fromCity, arrival = toCity, dateFrom = startTrip, dateBack = endTrip, startTime = startTime, endTime = endTime)
+        url = query.params.get("url") + query.params.get("queryParams")
+        url = url.format(
+            id=pickupId,
+            dropoffId=dropoffId,
+            departure=query.from_city,
+            arrival=query.to_city,
+            dateFrom=startTrip,
+            dateBack=endTrip,
+            startTime=startTime,
+            endTime=endTime
+        )
 
         print("url: " + url)
         webbrowser.open(url)
 
         return ""
 
-    def getLocation(self, city : str, place : str) -> str:
-
-        response = requests.get("https://okmobility.com/api/search-widget?type=rent-offices&lang=en&search=" + city + " " + place)
-
-        print("https://okmobility.com/api/search-widget?type=offices&lang=en&search=" + city + " " + place)
+    def getLocation(self, city: str, place: str) -> str:
+        response = requests.get(f"https://okmobility.com/api/search-widget?type=rent-offices&lang=en&search={city} {place}")
+        print(f"https://okmobility.com/api/search-widget?type=offices&lang=en&search={city} {place}")
 
         pickupId = ""
-
         data_value = re.search(r'data-value="(\d+)"', response.text)
-
         if data_value:
             pickupId = data_value.group(1)
 

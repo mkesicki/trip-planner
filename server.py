@@ -10,7 +10,7 @@ from pathlib import Path
 from flask import Flask, render_template, request, redirect
 from country_list import countries_for_language
 from model.Parser import Parser
-from model.data_classes import TripRequest, TransportDetails, AccommodationDetails
+from model.data_classes import TripRequest, TransportDetails, AccommodationDetails, SearchQuery
 
 # --- Flask App ---
 countries = dict(countries_for_language('en'))
@@ -117,19 +117,20 @@ def handle_transport_search(trip: TripRequest, config: dict):
     print(message)
 
     for params in settings:
-        transport = Parser(
-            fromCity=trip.from_city,
-            fromCountry=trip.from_country,
-            toCity=to_city,
-            toCountry=trip.to_country,
-            roundTrip=trip.round_trip,
-            startDate=trip.start_date,
-            endDate=trip.end_date,
+        query = SearchQuery(
+            from_city=trip.from_city,
+            from_country=trip.from_country,
+            to_city=to_city,
+            to_country=trip.to_country,
+            start_date=datetime.datetime.strptime(trip.start_date, "%Y-%m-%dT%H:%M"),
+            end_date=datetime.datetime.strptime(trip.end_date, "%Y-%m-%dT%H:%M"),
             adults=trip.adults,
+            round_trip=trip.round_trip,
             params=params,
-            pickupPlace=trip.transport_start.pickup_place,
-            returnPlace=trip.transport_end.return_place
+            pickup_place=trip.transport_start.pickup_place,
+            return_place=trip.transport_end.return_place
         )
+        transport = Parser(query)
         transport.search()
 
     if not trip.round_trip:
@@ -137,19 +138,20 @@ def handle_transport_search(trip: TripRequest, config: dict):
         settings = config.get(trip.transport_end.transport_type, [])
         for params in settings:
             new_end_date = f"{trip.end_date[:10]}T{trip.back_time}"
-            transport = Parser(
-                fromCity=trip.places[-1].place,
-                fromCountry=trip.to_country,
-                toCity=trip.from_city,
-                toCountry=trip.from_country,
-                roundTrip="off",
-                startDate=trip.end_date,
-                endDate=new_end_date,
+            query = SearchQuery(
+                from_city=trip.places[-1].place,
+                from_country=trip.to_country,
+                to_city=trip.from_city,
+                to_country=trip.from_country,
+                start_date=datetime.datetime.strptime(trip.end_date, "%Y-%m-%dT%H:%M"),
+                end_date=datetime.datetime.strptime(new_end_date, "%Y-%m-%dT%H:%M"),
                 adults=trip.adults,
+                round_trip=False,
                 params=params,
-                pickupPlace=trip.transport_end.return_place,
-                returnPlace=trip.transport_start.pickup_place
+                pickup_place=trip.transport_end.return_place,
+                return_place=trip.transport_start.pickup_place
             )
+            transport = Parser(query)
             transport.search()
 
 def handle_hotel_search(trip: TripRequest, config: dict):
@@ -162,17 +164,18 @@ def handle_hotel_search(trip: TripRequest, config: dict):
         hotel_checkout = hotel_checkin + datetime.timedelta(days=place_details.nights)
 
         for params in settings:
-            hotels = Parser(
-                fromCity="",
-                fromCountry=trip.from_country,
-                toCity=place_details.place,
-                toCountry=countries.get(place_details.country),
-                roundTrip=trip.round_trip,
-                startDate=hotel_checkin.strftime("%Y-%m-%dT%H:%M"),
-                endDate=hotel_checkout.strftime("%Y-%m-%dT%H:%M"),
+            query = SearchQuery(
+                from_city="",
+                from_country=trip.from_country,
+                to_city=place_details.place,
+                to_country=countries.get(place_details.country),
+                start_date=hotel_checkin,
+                end_date=hotel_checkout,
                 adults=trip.adults,
+                round_trip=trip.round_trip,
                 params=params
             )
+            hotels = Parser(query)
             hotels.search()
 
         hotel_checkin = hotel_checkout
@@ -213,4 +216,4 @@ def planner():
         return f"An error occurred: {e}", 500
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
