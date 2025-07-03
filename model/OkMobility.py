@@ -1,5 +1,4 @@
 import logging
-import datetime
 import webbrowser
 import requests
 import re
