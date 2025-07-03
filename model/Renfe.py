@@ -1,3 +1,4 @@
+import logging
 import re
 import time
 import datetime
@@ -10,7 +11,6 @@ from webdriver_manager.firefox import GeckoDriverManager
 from .data_classes import SearchQuery
 
 class Renfe:
-
     def parse(self, query: SearchQuery):
         startTrip = query.start_date.strftime(query.params.get("dateFormat"))
         endTrip = query.end_date.strftime(query.params.get("dateFormat"))
@@ -51,11 +51,11 @@ class Renfe:
             browser.execute_script(command)
 
             if query.round_trip:
-                print("Set date back for roundtrip")
+                logging.info("Set date back for roundtrip")
                 command = f"document.querySelector(\"input[name='{config.get('dateBack')}']\").value='{endTrip}';"
                 browser.execute_script(command)
             else:
-                print("Set only to one way trip")
+                logging.info("Set only to one way trip")
                 command = "document.querySelector('button.rf-select__list-text:first-child').click();"
                 browser.execute_script(command)
 
@@ -79,10 +79,3 @@ class Renfe:
         if strict and not result:
             result = self.findStation(city, stations, False)
         return result
-
-
-
-
-
-
-

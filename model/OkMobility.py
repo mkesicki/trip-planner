@@ -1,3 +1,4 @@
+import logging
 import datetime
 import webbrowser
 import requests
@@ -23,8 +24,8 @@ class OkMobility:
         else:
             dropoffId = self.getLocation(query.to_city, query.return_place)
 
-        print("pickup location: " + pickupId)
-        print("dropoff location: " + dropoffId)
+        logging.info("pickup location: " + pickupId)
+        logging.info("dropoff location: " + dropoffId)
 
         url = query.params.get("url") + query.params.get("queryParams")
         url = url.format(
@@ -38,14 +39,14 @@ class OkMobility:
             endTime=endTime
         )
 
-        print("url: " + url)
+        logging.info("url: " + url)
         webbrowser.open(url)
 
         return ""
 
     def getLocation(self, city: str, place: str) -> str:
         response = requests.get(f"https://okmobility.com/api/search-widget?type=rent-offices&lang=en&search={city} {place}")
-        print(f"https://okmobility.com/api/search-widget?type=offices&lang=en&search={city} {place}")
+        logging.info(f"https://okmobility.com/api/search-widget?type=offices&lang=en&search={city} {place}")
 
         pickupId = ""
         data_value = re.search(r'data-value="(\d+)"', response.text)

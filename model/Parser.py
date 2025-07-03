@@ -1,4 +1,4 @@
-
+import logging
 import datetime
 import airportsdata
 import webbrowser
@@ -43,19 +43,19 @@ class Parser:
                 arrivalCountry=self.query.to_country,
                 departureCountry=self.query.from_country
             )
-            print("url: " + url)
+            logging.info("url: " + url)
             webbrowser.open(url)
 
         elif self.query.params.get("type") == "parseWeb":
             company = self.query.params.get("company")
             if importlib.util.find_spec(f"model.{company}", f"./{company}.py") is not None:
                 try:
-                    print("Parse: " + company)
+                    logging.info("Parse: " + company)
                     module = importlib.import_module(f"model.{company}", f"./{company}.py")
                     obj = getattr(module, company)()
                     obj.parse(self.query)
                 except (NoSuchElementException, ElementClickInterceptedException) as e:
-                    print(f"Handle selenium exception: {e}")
+                    logging.error(f"Handle selenium exception: {e}")
 
     def findAirportCode(self, country: str, city: str, type: str = "IATA") -> str:
         airports = airportsdata.load(type)
@@ -63,4 +63,3 @@ class Parser:
             if airport.get("city").lower() == city.lower() and airport.get("country").lower() == country.lower():
                 return code
         return ""
-

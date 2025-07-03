@@ -1,3 +1,4 @@
+import logging
 import time
 import datetime
 import webbrowser
@@ -18,10 +19,10 @@ class Sixt:
         else:
             dropoff = self.getLocation(query.to_city, query.to_country)
 
-        print("pickup location:")
-        print(pickup)
-        print("dropoff location:")
-        print(dropoff)
+        logging.info("pickup location:")
+        logging.info(pickup)
+        logging.info("dropoff location:")
+        logging.info(dropoff)
 
         url = query.params.get("url") + query.params.get("queryParams")
         url = url.format(
@@ -38,7 +39,7 @@ class Sixt:
             endTrip=endTrip
         )
 
-        print("url: " + url)
+        logging.info("url: " + url)
         webbrowser.open(url)
 
         return ""
@@ -50,7 +51,7 @@ class Sixt:
             "Content-Length": "21",
         }
 
-        print(f"Get sixt location for: {city}")
+        logging.info(f"Get sixt location for: {city}")
         response = requests.post(
             "https://grpc-prod.orange.sixt.com/com.sixt.service.rent_booking.api.SearchService/SuggestLocations",
             data=json.dumps({"query": f"{city} {country}"}),

@@ -17,8 +17,13 @@ parser.add_argument('--country', default = "Spain",  help = 'Optional country. D
 parser.add_argument('--home', default = "Barcelona",  help = 'Optional home city, it is used to find direction  to selected city. Default Barcelona')
 
 
+import logging
+from utils import setup_logging
+
+setup_logging()
+
 if not os.path.isfile("/tmp/onenote.txt"):
-    print("Triggering login action to OneNote")
+    logging.info("Triggering login action to OneNote")
     process = subprocess.Popen(["python", "server.py"])
     time.sleep(3)
     webbrowser.open("http://localhost:5000/login")
@@ -46,5 +51,5 @@ data = planner(city = args.city, country = args.country, pages = pages, min = ar
 KMLData = prepareKMLFile(args.city.title(), args.country.title(), data)
 
 # OneNote
-print("Let's insert page in OneNote")
+logging.info("Let's insert page in OneNote")
 insertPage(args.city, args.country, prepareOneNoteContent(args.city, args.country, data, KMLData, args.home, pages))

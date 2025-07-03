@@ -1,3 +1,4 @@
+import logging
 import re
 
 from langchain_openai import ChatOpenAI
@@ -5,7 +6,7 @@ from langchain.schema import HumanMessage, SystemMessage
 
 def planner(city, country, min: int, max : int , pages : str = "https://www.tripadvisor.com, https://www.thecrazytourist.com", model='gpt-4o') :
 
-    print("Let's plan trip to " + city.title() + " in " + country.title())
+    logging.info("Let's plan trip to " + city.title() + " in " + country.title())
 
     prompt = """I want to visit {city} in {country}.
                 Please list the most important and popular tourist attractions.

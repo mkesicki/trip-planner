@@ -1,3 +1,4 @@
+import logging
 import time
 import datetime
 
@@ -55,7 +56,7 @@ class Iryo:
         time.sleep(2)
         currentAdults = 1
         while currentAdults < query.adults:
-            print("Add passenger")
+            logging.info("Add passenger")
             browser.find_element(By.XPATH, config.get("adults")).click()
             currentAdults += 1
             if currentAdults == query.adults:
@@ -72,12 +73,5 @@ class Iryo:
             if city.lower() in station.text.lower():
                 station.click()
                 return station
-        print(f"Station for {city} not found!")
+        logging.info(f"Station for {city} not found!")
         return ""
-
-
-
-
-
-
-

@@ -1,3 +1,4 @@
+import logging
 import time
 import datetime
 
@@ -63,7 +64,7 @@ class Ouigo:
         time.sleep(2)
         currentAdults = 1
         while currentAdults < query.adults:
-            print("Add passenger")
+            logging.info("Add passenger")
             command = f"document.querySelector('#{config.get('adults')}').click();"
             browser.execute_script(command)
             currentAdults += 1
@@ -81,12 +82,5 @@ class Ouigo:
             if city.lower() in station.text.lower():
                 station.click()
                 return station
-        print(f"Station for {city} not found!")
+        logging.info(f"Station for {city} not found!")
         return ""
-
-
-
-
-
-
-

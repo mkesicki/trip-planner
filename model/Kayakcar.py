@@ -1,3 +1,4 @@
+import logging
 import datetime
 import requests
 import webbrowser
@@ -35,7 +36,7 @@ class KayakCar:
             timeEnd=timeEnd
         )
 
-        print("url: " + url)
+        logging.info("url: " + url)
         webbrowser.open(url)
 
         return ""

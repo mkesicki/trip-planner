@@ -1,3 +1,4 @@
+import logging
 import datetime
 
 from selenium import webdriver
@@ -21,7 +22,7 @@ class Vueling:
         url = query.params.get("url")
         self.config = query.params.get("params")
 
-        print("Open Browser " + url)
+        logging.info("Open Browser " + url)
         browser = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()))
         browser.get(url)
         browser.implicitly_wait(10)  # seconds
@@ -45,7 +46,7 @@ class Vueling:
         self.findDate(browser, startTrip)
 
         if not query.round_trip:
-            print("Handle one way trip")
+            logging.info("Handle one way trip")
             browser.find_element(By.ID, self.config.get("oneWay")).click()
             browser.implicitly_wait(5)  # seconds
             browser.find_element(By.ID, f"calendarDaysTable{startTrip}").click()
@@ -69,9 +70,9 @@ class Vueling:
     def findDate(self, browser, date):
         try:
             browser.find_element(By.ID, f"calendarDaysTable{date}")
-            print("Date found !")
+            logging.info("Date found !")
             return
         except NoSuchElementException:
-            print("search month in calendar")
+            logging.info("search month in calendar")
             browser.find_element(By.ID, self.config.get("dateForward")).click()
             self.findDate(browser, date)
