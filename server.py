@@ -7,7 +7,7 @@ import webbrowser
 import requests
 import msal
 from pathlib import Path
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request
 from country_list import countries_for_language
 from model.Parser import Parser
 from model.data_classes import TripRequest, TransportDetails, AccommodationDetails, SearchQuery
@@ -220,7 +220,9 @@ def callback():
         scopes=scopes,
         redirect_uri=redirect_uri
     )
-    session["access_token"] = result["access_token"]
+
+    with open("/tmp/onenote.txt", "w+", encoding="utf-8") as f:
+        f.write(result["access_token"])
     return "Authentication successful! You can close this window."
 
 @app.route("/")
