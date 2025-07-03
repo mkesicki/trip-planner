@@ -109,6 +109,8 @@ def planner():
     places = args.getlist('places[]')
     nights = args.getlist('nights[]')
     adults = args['adults']
+    pickupPlace = ""
+    returnPlace = ""
 
     if transportStart == "cars":
         pickupPlace = args['pickupPlace']

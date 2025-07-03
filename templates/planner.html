@@ -1,41 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Trip Planner Results Page</title>
-        <script src="{{url_for('static', filename='main.js')}}"></script>
-        <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='main.css')}}"></link>
-    </head>
-    <body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trip Planner Results</title>
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='main.css')}}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1>Trip Planner</h1>
+        </div>
+    </header>
 
+    <main class="container">
         <div class="intro">
-            <h1>Please check newly opened tabs and browser windows</h1>
-            <p>Please remember to double check results (be carefull with pickup/dropoff locations, dates and number of passangers).</p>
+            <h2>Please check for newly opened tabs and browser windows.</h2>
+            <p>Remember to double-check results, especially pickup/drop-off locations, dates, and number of passengers.</p>
         </div>
 
-        <div>
-            <p>Trip from <span class="bold">{{ request.args.get('fromCity').title() }}</span> in <span class="bold">{{ countries[request.args.get('fromCountry')] }}</span> / starting at <span class="bold">{{ request.args.get('start') }}</span> </p>
-            <p>to</p>
-            <p><span class="bold">{{ request.args.getlist('places[]')[-1].title() }}</span> in <span class="bold">{{ countries[request.args.get('toCountry')] }}</span> / ending at <span class="bold">{{ request.args.get('end') }}</span> </p>
+        <div class="trip-summary">
+            <div class="summary-card">
+                <h3>Trip Itinerary</h3>
+                <p>From: <span class="bold">{{ request.args.get('fromCity').title() }}</span>, {{ countries[request.args.get('fromCountry')] }}</p>
+                <p>To: <span class="bold">{{ request.args.getlist('places[]')[-1].title() }}</span>, {{ countries[request.args.get('toCountry')] }}</p>
+                <p>Starts: <span class="bold">{{ request.args.get('start') }}</span> | Ends: <span class="bold">{{ request.args.get('end') }}</span></p>
+            </div>
+
+            <div class="summary-card">
+                <h3>Transportation</h3>
+                <p>Initial: <span class="bold">{{ request.args.get('transportStart').title()[:-1] }}</span></p>
+                <p>Return: <span class="bold">{{ request.args.get('transportEnd').title()[:-1] }}</span></p>
+            </div>
+
+            <div class="summary-card">
+                <h3>Accommodations</h3>
+                <ul>
+                    {% for i in range(request.args.getlist('places[]') | length) %}
+                        <li><span class="bold">{{request.args.getlist('nights[]')[i]}}</span> night(s) in <span class="bold">{{ request.args.getlist('places[]')[i].title() }}</span></li>
+                    {% endfor %}
+                </ul>
+            </div>
         </div>
 
-        <div>
-            <p>Travel by <span class="bold">{{ request.args.get('transportStart').title()[0:-1] }}</span> [start] & <span class="bold">{{ request.args.get('transportEnd').title()[0:-1] }}</span> [back]
+        <div class="context-details">
+            <h3>Search Details</h3>
+            <div>{{ context }}</div>
         </div>
+    </main>
 
-        <div> Stay in:
-            <ul>
-                {% for i in  range(request.args.getlist('places[]') | length) %}
-                    <li> <span class="bold">{{request.args.getlist('nights[]')[i]}}</span> <span class="italic">night(s) in</span> <span class="bold">{{ request.args.getlist('places[]')[i].title() }}</span> </li>
-                {% endfor %}
-            </ul>
-
-
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Trip Planner. All rights reserved.</p>
         </div>
+    </footer>
 
-
-<div>{{context}}</div>
-
-
-    </body>
+    <script src="{{url_for('static', filename='main.js')}}"></script>
+</body>
 </html>
