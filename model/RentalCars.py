@@ -1,3 +1,4 @@
+import logging
 import datetime
 import webbrowser
 import requests
@@ -20,10 +21,10 @@ class RentalCars:
         else:
             dropoff = self.getLocation(f"{query.to_city} {returnPlace}", query.to_country)
 
-        print("pickup location:")
-        print(pickup)
-        print("dropoff location:")
-        print(dropoff)
+        logging.info("pickup location:")
+        logging.info(pickup)
+        logging.info("dropoff location:")
+        logging.info(dropoff)
 
         url = query.params.get("url") + query.params.get("queryParams")
         url = url.format(
@@ -34,15 +35,15 @@ class RentalCars:
             dropLocationName=dropoff.get("name")
         )
 
-        print("url: " + url)
+        logging.info("url: " + url)
         webbrowser.open(url)
 
         return ""
 
     def getLocation(self, city: str, country: str):
-        print(f"Get RentalCars location for: {city}")
+        logging.info(f"Get RentalCars location for: {city}")
         response = requests.post(f"https://cars.booking.com/api/location-suggestions?term={city}")
-        print(response.json())
+        logging.info(response.json())
         data = response.json()
         return {
             "name": urllib.parse.quote_plus(data[0]["name"]),

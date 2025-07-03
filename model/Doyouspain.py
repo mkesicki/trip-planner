@@ -1,3 +1,4 @@
+import logging
 import requests
 import datetime
 import re
@@ -21,7 +22,7 @@ class DoYouSpain:
         url = query.params.get("url")
         config = query.params.get("params")
 
-        print("Open Browser " + url)
+        logging.info("Open Browser " + url)
         browser = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()))
         browser.get(url)
         browser.implicitly_wait(10)  # seconds
@@ -32,7 +33,7 @@ class DoYouSpain:
                 cookiesAccept = browser.find_element(By.ID, config.get("cookiesAccept"))
                 cookiesAccept.click()
             except:
-                print("No cookies to accept")
+                logging.info("No cookies to accept")
                 pass
 
         location = self.getLocation(query.from_city, query.pickup_place)
@@ -57,7 +58,7 @@ class DoYouSpain:
         browser.execute_script(command4)
 
         if not query.round_trip:
-            print("Handle one way trip")
+            logging.info("Handle one way trip")
             browser.find_element(By.ID, config.get("oneWay")).click()
 
             location = self.getLocation(query.to_city, query.return_place)
@@ -80,9 +81,9 @@ class DoYouSpain:
             "experimiento": "[CAR]"
         }
 
-        print("Get location for " + city)
+        logging.info("Get location for " + city)
         response = requests.post("https://www.doyouspain.com/do/ajax/autocomplete", data=data)
-        print(response)
+        logging.info(response)
 
         location_id = ""
         location_name = ""
@@ -99,5 +100,5 @@ class DoYouSpain:
             "location_id": location_id,
             "location_name": location_name
         }
-        print(results)
+        logging.info(results)
         return results

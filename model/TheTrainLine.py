@@ -1,3 +1,4 @@
+import logging
 import sys
 import datetime
 import requests
@@ -34,8 +35,7 @@ class TheTrainLine:
             passengers += f"&passengers[]={passenger_date}"
 
         url += passengers
-        print("Open url: " + url)
+        logging.info("Open url: " + url)
         webbrowser.open(url)
 
         return ""
-

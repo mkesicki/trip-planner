@@ -7,10 +7,15 @@ import webbrowser
 import requests
 import msal
 from pathlib import Path
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, session
 from country_list import countries_for_language
 from model.Parser import Parser
 from model.data_classes import TripRequest, TransportDetails, AccommodationDetails, SearchQuery
+
+import logging
+from utils import setup_logging
+
+setup_logging()
 
 # --- Flask App ---
 countries = dict(countries_for_language('en'))
@@ -21,6 +26,7 @@ redirect_uri = os.environ.get("ONE_NOTE_REDIRECT_URI")
 scopes = ["https://graph.microsoft.com/Notes.Read", "https://graph.microsoft.com/Notes.ReadWrite"]
 
 app = Flask(__name__)
+app.secret_key = os.urandom(24)
 app_client = msal.ConfidentialClientApplication(
     client_id=client_id,
     client_credential=client_secret,
@@ -75,26 +81,30 @@ def parse_request(args: dict) -> TripRequest:
         places=accommodations
     )
 
+def load_config(from_country: str) -> dict:
+    """Loads and merges the configuration files."""
+    base_path = Path(os.getcwd())
+    config_path = base_path / "static" / "configs"
+
+    with (config_path / "config.json").open('r') as f:
+        config_main = json.load(f)
+
+    local_config_path = config_path / f"config-{from_country.lower()}.json"
+    config_local = {}
+    if local_config_path.is_file():
+        with local_config_path.open('r') as f:
+            config_local = json.load(f)
+
+    return {
+        "cars": config_main.get("cars", []) + config_local.get("cars", []),
+        "flights": config_main.get("flights", []) + config_local.get("flights", []),
+        "trains": config_main.get("trains", []) + config_local.get("trains", []),
+        "hotels": config_main.get("hotels", []) + config_local.get("hotels", [])
+    }
+
 def handle_search(trip: TripRequest):
     """Handles the search logic for the given trip."""
-    basePath = Path(os.getcwd())
-    filePath = basePath / "static" / "configs" / f"config-{trip.from_country.lower()}.json"
-
-    configLocal = {}
-    if filePath.is_file():
-        with filePath.open('r+') as fp:
-            configLocal = json.load(fp)
-
-    path = basePath / "static" / "configs" / "config.json"
-    with path.open('r+') as fp:
-        configMain = json.load(fp)
-
-    config = {
-        "cars": configMain.get("cars", []) + configLocal.get("cars", []),
-        "flights": configMain.get("flights", []) + configLocal.get("flights", []),
-        "trains": configMain.get("trains", []) + configLocal.get("trains", []),
-        "hotels": configMain.get("hotels", []) + configLocal.get("hotels", [])
-    }
+    config = load_config(trip.from_country)
 
     # Handle start trip transport
     if not trip.hotels_only:
@@ -104,59 +114,73 @@ def handle_search(trip: TripRequest):
     if not trip.transport_only:
         handle_hotel_search(trip, config)
 
-def handle_transport_search(trip: TripRequest, config: dict):
-    """Handles the transport search logic."""
-    settings = config.get(trip.transport_start.transport_type, [])
-    to_city = trip.places[0].place
-
+def _search_transport(trip: TripRequest, config: dict, from_city: str, to_city: str, from_country: str, to_country: str, start_date: str, end_date: str, transport_type: str, pickup_place: str, return_place: str, round_trip: bool):
+    """Helper function to perform a single transport search."""
+    settings = config.get(transport_type, [])
     message = (
-        f"Searching {trip.transport_start.transport_type} from {trip.from_city} "
-        f"in {countries.get(trip.from_country)} to {to_city} in {countries.get(trip.to_country)}. "
-        f"Between {trip.start_date} and {trip.end_date}"
+        f"Searching {transport_type} from {from_city} "
+        f"in {countries.get(from_country)} to {to_city} in {countries.get(to_country)}. "
+        f"Between {start_date} and {end_date}"
     )
-    print(message)
+    logging.info(message)
 
     for params in settings:
         query = SearchQuery(
-            from_city=trip.from_city,
-            from_country=trip.from_country,
+            from_city=from_city,
+            from_country=from_country,
             to_city=to_city,
-            to_country=trip.to_country,
-            start_date=datetime.datetime.strptime(trip.start_date, "%Y-%m-%dT%H:%M"),
-            end_date=datetime.datetime.strptime(trip.end_date, "%Y-%m-%dT%H:%M"),
+            to_country=to_country,
+            start_date=datetime.datetime.strptime(start_date, "%Y-%m-%dT%H:%M"),
+            end_date=datetime.datetime.strptime(end_date, "%Y-%m-%dT%H:%M"),
             adults=trip.adults,
-            round_trip=trip.round_trip,
+            round_trip=round_trip,
             params=params,
-            pickup_place=trip.transport_start.pickup_place,
-            return_place=trip.transport_end.return_place
+            pickup_place=pickup_place,
+            return_place=return_place
         )
         transport = Parser(query)
         transport.search()
 
+def handle_transport_search(trip: TripRequest, config: dict):
+    """Handles the transport search logic."""
+    # Search for the outbound trip
+    _search_transport(
+        trip,
+        config,
+        trip.from_city,
+        trip.places[0].place,
+        trip.from_country,
+        trip.to_country,
+        trip.start_date,
+        trip.end_date,
+        trip.transport_start.transport_type,
+        trip.transport_start.pickup_place,
+        trip.transport_end.return_place,
+        trip.round_trip
+    )
+
+    # Search for the return trip if it's not a round trip
     if not trip.round_trip:
-        print("Handling return trip")
-        settings = config.get(trip.transport_end.transport_type, [])
-        for params in settings:
-            new_end_date = f"{trip.end_date[:10]}T{trip.back_time}"
-            query = SearchQuery(
-                from_city=trip.places[-1].place,
-                from_country=trip.to_country,
-                to_city=trip.from_city,
-                to_country=trip.from_country,
-                start_date=datetime.datetime.strptime(trip.end_date, "%Y-%m-%dT%H:%M"),
-                end_date=datetime.datetime.strptime(new_end_date, "%Y-%m-%dT%H:%M"),
-                adults=trip.adults,
-                round_trip=False,
-                params=params,
-                pickup_place=trip.transport_end.return_place,
-                return_place=trip.transport_start.pickup_place
-            )
-            transport = Parser(query)
-            transport.search()
+        logging.info("Handling return trip")
+        new_end_date = f"{trip.end_date[:10]}T{trip.back_time}"
+        _search_transport(
+            trip,
+            config,
+            trip.places[-1].place,
+            trip.from_city,
+            trip.to_country,
+            trip.from_country,
+            trip.end_date,
+            new_end_date,
+            trip.transport_end.transport_type,
+            trip.transport_end.return_place,
+            trip.transport_start.pickup_place,
+            False
+        )
 
 def handle_hotel_search(trip: TripRequest, config: dict):
     """Handles the hotel search logic."""
-    print("Searching for hotels!")
+    logging.info("Searching for hotels!")
     settings = config.get("hotels", [])
     hotel_checkin = datetime.datetime.strptime(trip.start_date, "%Y-%m-%dT%H:%M")
 
@@ -196,8 +220,7 @@ def callback():
         scopes=scopes,
         redirect_uri=redirect_uri
     )
-    with open("/tmp/onenote.txt", "w+") as f:
-        f.write(result["access_token"])
+    session["access_token"] = result["access_token"]
     return "Authentication successful! You can close this window."
 
 @app.route("/")
@@ -210,10 +233,12 @@ def planner():
         trip_request = parse_request(request.args)
         handle_search(trip_request)
         return render_template('planner.html', countries=countries, request=request)
+    except (KeyError, ValueError) as e:
+        logging.error(f"An error occurred parsing the request: {e}")
+        return f"An error occurred: {e}", 400
     except Exception as e:
-        print(f"An error occurred: {e}", file=sys.stderr)
-        # Optionally, render an error page or redirect
-        return f"An error occurred: {e}", 500
+        logging.error(f"An unexpected error occurred: {e}")
+        return "An unexpected error occurred. Please try again later.", 500
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5001, debug=True)

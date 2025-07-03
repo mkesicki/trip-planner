@@ -1,3 +1,4 @@
+import logging
 import time
 import datetime
 
@@ -17,7 +18,7 @@ class Google:
         startTrip = query.start_date.strftime(query.params.get("dateFormat"))
         endTrip = query.end_date.strftime(query.params.get("dateFormat"))
 
-        print("Open Browser " + url)
+        logging.info("Open Browser " + url)
         browser = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()))
         browser.get(url)
         browser.implicitly_wait(10)  # seconds
@@ -56,7 +57,7 @@ class Google:
         time.sleep(2)
 
         if not query.round_trip:
-            print("Handle one way trip")
+            logging.info("Handle one way trip")
             browser.find_element(By.XPATH, config.get("oneWayInit")).click()
             browser.find_element(By.XPATH, config.get("oneWay")).click()
             dateFrom = browser.find_element(By.XPATH, config.get("dateFrom"))

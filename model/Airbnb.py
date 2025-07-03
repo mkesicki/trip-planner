@@ -1,3 +1,4 @@
+import logging
 import json
 import requests
 import webbrowser
@@ -29,7 +30,7 @@ class Airbnb:
             destId=place.get("labels")[0].get("dest_id")
         )
 
-        print("url: " + url)
+        logging.info("url: " + url)
         webbrowser.open(url)
 
         return ""

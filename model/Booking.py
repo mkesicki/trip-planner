@@ -1,3 +1,4 @@
+import logging
 import datetime
 import requests
 import webbrowser
@@ -18,7 +19,7 @@ class Booking:
         data = {"query": f"{query.to_city},{query.to_country}", "language": "en-us", "size": 5}
         response = requests.post("https://accommodations.booking.com/autocomplete.json", data=json.dumps(data), headers=headers)
 
-        print(response.json().get("results"))
+        logging.info(response.json().get("results"))
 
         place = response.json().get("results")[0]
 
@@ -32,7 +33,7 @@ class Booking:
             destId=place.get("labels")[0].get("dest_id")
         )
 
-        print("url: " + url)
+        logging.info("url: " + url)
         webbrowser.open(url)
 
         return ""

@@ -1,3 +1,4 @@
+import logging
 import os
 import requests
 
@@ -38,9 +39,9 @@ def prepareKMLFile(city : str, country : str, data : str) -> str:
 
     filename  = city.title() + " " + country.title() + " Map.kml"
 
-    print("* KML File Content * Use it to create map in MyMaps.")
-    print(file)
-    print("* End of KML File * Also stored in " + filename + " file.")
+    logging.info("* KML File Content * Use it to create map in MyMaps.")
+    logging.info(file)
+    logging.info("* End of KML File * Also stored in " + filename + " file.")
 
     f = open("maps/" + filename, "w", encoding='utf-8')
     f.write(file)

@@ -1,3 +1,4 @@
+import logging
 import requests
 import webbrowser
 import easygui
@@ -14,7 +15,7 @@ def get_token():
         with open("/tmp/onenote.txt", "r") as f:
             return f.read()
     except:
-        print("No token found. Exiting.")
+        logging.error("No token found. Exiting.")
         exit(1)
 
 def prepareOneNoteContent(city : str, country: str, data : str, kml : str, home: str, pages : str) -> str :
@@ -87,7 +88,7 @@ def insertPage(city, country, page):
 
     headers = {'Authorization': 'Bearer ' + token}
 
-    print("Check if page exists")
+    logging.info("Check if page exists")
 
     query = (city + " " + country).lower()
 
@@ -107,7 +108,7 @@ def insertPage(city, country, page):
         pageTitle = title["title"].lower()
 
         if pageTitle == query or pageTitle == "[V] " + query or city.lower() in pageTitle:
-            print("Page for {query} already exists : [{id}]. Will not add new one.".format(query = query.replace(" ", " in "), id = title["id"]))
+            logging.info("Page for {query} already exists : [{id}]. Will not add new one.".format(query = query.replace(" ", " in "), id = title["id"]))
 
             return
 
@@ -119,12 +120,12 @@ def insertPage(city, country, page):
 
     if linkMyMap == None or linkMyMap == "":
 
-        print("No link to map provided. Exiting.")
+        logging.error("No link to map provided. Exiting.")
         exit(1)
 
     page = page.replace("<p><b>Mapa mia:</b></p>", "<p><b>Mapa mia:</b> <a href=\"{link}\" > map</a></p>".format(link = linkMyMap ))
 
-    print("Create new page in OneNote")
+    logging.info("Create new page in OneNote")
 
     headers = {
         'Authorization': 'Bearer ' + token,
@@ -133,8 +134,8 @@ def insertPage(city, country, page):
 
     response = requests.post("https://graph.microsoft.com/v1.0/me/onenote/sections/" + sectionId + "/pages", data = page.replace("\n", "\r\n").encode("utf-8"), headers = headers);
 
-    print(response.json())
+    logging.info(response.json())
 
     os.remove("/tmp/onenote.txt")
 
-    return ""
+    return ""}
