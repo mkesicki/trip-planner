@@ -15,6 +15,9 @@ class Renfe:
         endTrip = query.end_date.strftime(query.params.get("dateFormat"))
         config = query.params.get("params")
 
+        print(startTrip)
+        print(endTrip)
+
         estaciones_req = requests.get("https://www.renfe.com/content/dam/renfe/es/General/buscadores/javascript/estacionesEstaticas.js")
         pattern = r'var estacionesEstatico=(.+);'
         match = re.search(pattern, estaciones_req.text)
@@ -33,9 +36,6 @@ class Renfe:
             if "cookiesAccept" in config:
                 cookiesAccept = browser.find_element(By.ID, config.get("cookiesAccept"))
                 cookiesAccept.click()
-
-            command = "document.querySelector('.rf-search__filters').style.display='block';"
-            browser.execute_script(command)
 
             command = f"document.querySelector(\"input[name='{config.get('adults')}']\").value='{query.adults}';"
             browser.execute_script(command)
