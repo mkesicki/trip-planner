@@ -31,8 +31,11 @@ class Ouigo:
         time.sleep(2)
 
         # switch to iframe
-        frames = browser.find_elements(By.TAG_NAME, "iframe")
-        browser.switch_to.frame(frames[1])
+        try :
+            frames = browser.find_elements(By.TAG_NAME, "iframe")
+            browser.switch_to.frame(frames[1])
+        except:
+            pass
 
         browser.find_element(By.ID, config.get("departure")).click()
         stations = browser.find_elements(By.CSS_SELECTOR, "#origin-station-input-listbox li")
