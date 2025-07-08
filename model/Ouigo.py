@@ -24,6 +24,10 @@ class Ouigo:
             cookiesAccept = browser.find_element(By.ID, config.get("cookiesAccept"))
             cookiesAccept.click()
 
+        # close popup window
+        cookiesAccept = browser.find_element(By.CLASS_NAME, "close-icon")
+        cookiesAccept.click()
+
         time.sleep(2)
 
         # switch to iframe
