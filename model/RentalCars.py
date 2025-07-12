@@ -21,11 +21,6 @@ class RentalCars:
         else:
             dropoff = self.getLocation(f"{query.to_city} {returnPlace}", query.to_country)
 
-        logging.info("pickup location:")
-        logging.info(pickup)
-        logging.info("dropoff location:")
-        logging.info(dropoff)
-
         url = query.params.get("url") + query.params.get("queryParams")
         url = url.format(
             pickupCords=pickup.get("cords"),

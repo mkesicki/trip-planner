@@ -52,56 +52,14 @@
     ],
 
     "hotels": [],
-
     "trains": [
-        {
-            "url" : "https://www.renfe.com/es/es",
-            "type" : "parseWeb",
-            "company" : "Renfe",
-            "dateFormat" : "%d-%m-%Y",
-            "queryParams" : "",
-            "params" : {
-                "cookiesAccept" : "onetrust-accept-btn-handler",
-                "departure" :  "cdgoOrigen",
-                "arrival" : "cdgoDestino",
-                "dateFrom" : "FechaIdaSel",
-                "dateBack" : "FechaVueltaSel",
-                "submit" : "button[type='submit']",
-                "adults": "adultos_"
-            }
-        },
-        {
-            "url" : "https://www.ouigo.com/es/en",
-            "type" : "parseWeb",
-            "company" : "Ouigo",
-            "dateFormat" : "%d/%m/%y",
-            "queryParams" : "",
-            "params" : {
-                "cookiesAccept" : "didomi-notice-agree-button",
-                "departure" :  "origin-station-input-field__input",
-                "arrival" : "destination-station-input-field__input",
-                "dateFrom" : "search-engine__inputfield__outbound-date__input",
-                "dateBack" : "search-engine__inputfield__inbound-date__input",
-                "submit" : "/html/body/div[1]/div/form/div[3]/div[2]/button",
-                "adults": "step-plus"
-            }
-        },
-        {
-            "url" : "https://iryo.eu/en/home",
+       {
+            "url" : "https://iryo.eu/es/home",
             "type" : "parseWeb",
             "company" : "Iryo",
-            "dateFormat" : "%d/%m/%Y",
+            "dateFormat" : "%Y-%m-%d",
             "queryParams" : "",
-            "params" : {
-                "cookiesAccept" : "/html/body/app-root/main/app-cookies-manager/ilsa-cookies-cta/div/div[2]/ilsa-button[1]/div/button",
-                "departure" :  "/html/body/app-root/main/b2c-view-home/div[2]/section/div/div[1]/b2c-main-search/ilsa-main-search/div/div[2]/ilsa-select-route/div/ilsa-dropdown[1]/div[1]/div",
-                "arrival" : "/html/body/app-root/main/b2c-view-home/div[2]/section/div/div[1]/b2c-main-search/ilsa-main-search/div/div[2]/ilsa-select-route/div/ilsa-dropdown[2]/div[1]/div[1]",
-                "dateFrom" : "/html/body/app-root/main/b2c-view-home/div[2]/section/div/div[1]/b2c-main-search/ilsa-main-search/div/div[2]/ilsa-datepicker/div[1]/div/div[1]/input",
-                "dateBack" : "/html/body/app-root/main/b2c-view-home/div[2]/section/div/div[1]/b2c-main-search/ilsa-main-search/div/div[2]/ilsa-datepicker/div[1]/div/div[2]/input",
-                "submit" : "/html/body/app-root/main/b2c-view-home/div[2]/section/div/div[1]/b2c-main-search/ilsa-main-search/div/div[2]/ilsa-button/div/button",
-                "adults": "/html/body/app-root/main/b2c-view-home/div[2]/section/div/div[1]/b2c-main-search/ilsa-main-search/div/div[2]/ilsa-passengers-picker/div/div[2]/div[1]/div[1]/ilsa-numberpicker/div/button[2]",
-                "oneWay": "/html/body/app-root/main/b2c-view-home/div[2]/section/div/div[1]/b2c-main-search/ilsa-main-search/div/div[1]/div[2]/div[1]/div[2]/ilsa-radio/div[1]/label/span[1]"
-            }
+            "params" : {}
         }
     ]
 }

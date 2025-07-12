@@ -1,6 +1,5 @@
 import logging
 import time
-import datetime
 import webbrowser
 import requests
 import json

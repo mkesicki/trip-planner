@@ -1,5 +1,4 @@
 import logging
-import datetime
 import requests
 import webbrowser
 from .data_classes import SearchQuery

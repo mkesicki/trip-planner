@@ -138,4 +138,4 @@ def insertPage(city, country, page):
 
     os.remove("/tmp/onenote.txt")
 
-    return ""}
+    return ""
