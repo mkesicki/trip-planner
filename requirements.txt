@@ -3,7 +3,7 @@ easygui==0.98.3
 pyperclip==1.8.2
 flask==2.3.3
 country_list==1.0.0
-airportsdata==20230906
+airportsdata==20250706
 selenium==4.12.0
 selenium-requests==2.0.3
 webdriver-manager==4.0.1
