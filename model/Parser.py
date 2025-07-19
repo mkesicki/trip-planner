@@ -1,9 +1,7 @@
 import logging
-import datetime
 import airportsdata
 import webbrowser
 import importlib.util
-import inspect
 
 from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException
 from country_list import countries_for_language

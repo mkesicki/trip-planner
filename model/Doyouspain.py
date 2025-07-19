@@ -1,6 +1,5 @@
 import logging
 import requests
-import datetime
 import re
 import html
 

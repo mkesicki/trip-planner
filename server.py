@@ -7,10 +7,11 @@ import webbrowser
 import requests
 import msal
 from pathlib import Path
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request
 from country_list import countries_for_language
 from model.Parser import Parser
 from model.data_classes import TripRequest, TransportDetails, AccommodationDetails, SearchQuery
+from dataclasses import replace
 
 import logging
 from utils import setup_logging
@@ -114,69 +115,68 @@ def handle_search(trip: TripRequest):
     if not trip.transport_only:
         handle_hotel_search(trip, config)
 
-def _search_transport(trip: TripRequest, config: dict, from_city: str, to_city: str, from_country: str, to_country: str, start_date: str, end_date: str, transport_type: str, pickup_place: str, return_place: str, round_trip: bool):
+def _search_transport(query_template: SearchQuery, config: dict, transport_type: str):
     """Helper function to perform a single transport search."""
     settings = config.get(transport_type, [])
     message = (
-        f"Searching {transport_type} from {from_city} "
-        f"in {countries.get(from_country)} to {to_city} in {countries.get(to_country)}. "
-        f"Between {start_date} and {end_date}"
+        f"Searching {transport_type} from {query_template.from_city} "
+        f"in {countries.get(query_template.from_country)} to {query_template.to_city} in {countries.get(query_template.to_country)}. "
+        f"Between {query_template.start_date} and {query_template.end_date}"
     )
     logging.info(message)
 
+    logging.info(f"Found {len(settings)} providers for {transport_type}")
     for params in settings:
-        query = SearchQuery(
-            from_city=from_city,
-            from_country=from_country,
-            to_city=to_city,
-            to_country=to_country,
-            start_date=datetime.datetime.strptime(start_date, "%Y-%m-%dT%H:%M"),
-            end_date=datetime.datetime.strptime(end_date, "%Y-%m-%dT%H:%M"),
-            adults=trip.adults,
-            round_trip=round_trip,
-            params=params,
-            pickup_place=pickup_place,
-            return_place=return_place
-        )
+        query = replace(query_template, params=params)
         transport = Parser(query)
         transport.search()
 
 def handle_transport_search(trip: TripRequest, config: dict):
     """Handles the transport search logic."""
+    logging.info("--- Starting transport search ---")
     # Search for the outbound trip
+    outbound_query = SearchQuery(
+        from_city=trip.from_city,
+        from_country=trip.from_country,
+        to_city=trip.places[0].place,
+        to_country=trip.to_country,
+        start_date=datetime.datetime.strptime(trip.start_date, "%Y-%m-%dT%H:%M"),
+        end_date=datetime.datetime.strptime(trip.end_date, "%Y-%m-%dT%H:%M"),
+        adults=trip.adults,
+        round_trip=trip.round_trip,
+        params={},
+        pickup_place=trip.transport_start.pickup_place,
+        return_place=trip.transport_end.return_place
+    )
     _search_transport(
-        trip,
+        outbound_query,
         config,
-        trip.from_city,
-        trip.places[0].place,
-        trip.from_country,
-        trip.to_country,
-        trip.start_date,
-        trip.end_date,
-        trip.transport_start.transport_type,
-        trip.transport_start.pickup_place,
-        trip.transport_end.return_place,
-        trip.round_trip
+        trip.transport_start.transport_type
     )
 
     # Search for the return trip if it's not a round trip
     if not trip.round_trip:
         logging.info("Handling return trip")
         new_end_date = f"{trip.end_date[:10]}T{trip.back_time}"
-        _search_transport(
-            trip,
-            config,
-            trip.places[-1].place,
-            trip.from_city,
-            trip.to_country,
-            trip.from_country,
-            trip.end_date,
-            new_end_date,
-            trip.transport_end.transport_type,
-            trip.transport_end.return_place,
-            trip.transport_start.pickup_place,
-            False
+        return_query = SearchQuery(
+            from_city=trip.places[-1].place,
+            from_country=trip.to_country,
+            to_city=trip.from_city,
+            to_country=trip.from_country,
+            start_date=datetime.datetime.strptime(trip.end_date, "%Y-%m-%dT%H:%M"),
+            end_date=datetime.datetime.strptime(new_end_date, "%Y-%m-%dT%H:%M"),
+            adults=trip.adults,
+            round_trip=False,
+            params={},
+            pickup_place=trip.transport_end.return_place,
+            return_place=trip.transport_start.pickup_place
         )
+        _search_transport(
+            return_query,
+            config,
+            trip.transport_end.transport_type
+        )
+    logging.info("--- Finished transport search ---")
 
 def handle_hotel_search(trip: TripRequest, config: dict):
     """Handles the hotel search logic."""
@@ -220,7 +220,9 @@ def callback():
         scopes=scopes,
         redirect_uri=redirect_uri
     )
-    session["access_token"] = result["access_token"]
+
+    with open("/tmp/onenote.txt", "w+", encoding="utf-8") as f:
+        f.write(result["access_token"])
     return "Authentication successful! You can close this window."
 
 @app.route("/")

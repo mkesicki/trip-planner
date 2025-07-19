@@ -225,5 +225,8 @@ dragList.addEventListener('drop', handleDrop);
         document.getElementById("error").textContent = "Sum of nights needs to be equal to total nights of trip";
     }
 
-    document.getElementById("nightsLeft").value = document.getElementById("nights").value - totalNights;
+    var nightsLeftElements = document.getElementsByClassName("nightsLeft");
+    for (var i = 0; i < nightsLeftElements.length; i++) {
+        nightsLeftElements[i].value = document.getElementById("nights").value - totalNights;
+    }
   }

@@ -1,5 +1,4 @@
 import logging
-import sys
 import datetime
 import requests
 import webbrowser
@@ -12,7 +11,7 @@ class TheTrainLine:
         endTrip = query.end_date.strftime(query.params.get("dateFormat"))
 
         urlPrefix = "https://www.thetrainline.com/api/locations-search/v2/search?searchTerm={city} {country}&locale=en-US"
-        
+
         searchUrl = urlPrefix.format(city=query.from_city, country=query.from_country)
         response = requests.get(searchUrl)
         first = response.json()["searchLocations"][0]

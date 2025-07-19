@@ -113,23 +113,8 @@
         }
     ],
 
-    "trains": [
-        {
-            "url" : "https://www.thetrainline.com/book/results?origin={departure}&destination={arrival}&outwardDate={dateFrom}&outwardDateType=departAfter&inwardDate={dateBack}&inwardDateType=departAfter&journeySearchType=return",
-            "urlOneWay" : "https://www.thetrainline.com/book/results?origin={departure}&destination={arrival}&outwardDate={dateFrom}&outwardDateType=departAfter&journeySearchType=single",
-            "type" : "parseWeb",
-            "company" : "TheTrainLine",
-            "dateFormat" : "%Y-%m-%dT%H:%M:00",
-            "queryParams" : "",
-            "params" : {
-                "cookiesAccept" : "",
-                "departure" :  "",
-                "arrival" : "",
-                "dateFrom" : "",
-                "dateBack" : "",
-                "submit" : "",
-                "adults": ""
-            }
-        }
-    ]
+
+      "trains": [
+            ]
+
 }

@@ -1,6 +1,5 @@
 import logging
 import time
-import datetime
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -25,11 +24,18 @@ class Ouigo:
             cookiesAccept = browser.find_element(By.ID, config.get("cookiesAccept"))
             cookiesAccept.click()
 
+        # close popup window
+        cookiesAccept = browser.find_element(By.CLASS_NAME, "close-icon")
+        cookiesAccept.click()
+
         time.sleep(2)
 
         # switch to iframe
-        frames = browser.find_elements(By.TAG_NAME, "iframe")
-        browser.switch_to.frame(frames[1])
+        try :
+            frames = browser.find_elements(By.TAG_NAME, "iframe")
+            browser.switch_to.frame(frames[1])
+        except:
+            pass
 
         browser.find_element(By.ID, config.get("departure")).click()
         stations = browser.find_elements(By.CSS_SELECTOR, "#origin-station-input-listbox li")
