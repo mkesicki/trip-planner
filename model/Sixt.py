@@ -4,6 +4,7 @@ import webbrowser
 import requests
 import json
 from .data_classes import SearchQuery
+from playwright.sync_api import sync_playwright
 
 class Sixt:
 
@@ -39,7 +40,16 @@ class Sixt:
         )
 
         logging.info("url: " + url)
-        webbrowser.open(url)
+        playwright = sync_playwright().start()
+        browser = playwright.chromium.launch(headless=False)
+        page = browser.new_page()
+        page.goto(url)
+        # page.wait_for_load_state('networkidle')
+
+        button = page.wait_for_selector('button:has-text("I AGREE")', timeout=3000)
+        print(button)
+        if button and button.is_visible():
+            button.click()
 
         return ""
 
