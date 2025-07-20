@@ -6,6 +6,7 @@ import sys
 import webbrowser
 import requests
 import msal
+import concurrent.futures
 from pathlib import Path
 from flask import Flask, render_template, request
 from country_list import countries_for_language
@@ -133,22 +134,46 @@ def process_search_preferences(trip: TripRequest) -> (bool, bool):
 
     return search_transport, search_hotels
 
+def _execute_search(parser: Parser):
+    """Wrapper to execute the search method of a Parser instance."""
+    try:
+        parser.search()
+    except Exception as e:
+        logging.error(f"A search task for {parser.query.params.get('company', 'Unknown')} generated an exception: {e}")
+
 def handle_search(trip: TripRequest):
-    """Handles the search logic for the given trip."""
+    """Handles the search logic for the given trip by running searches in parallel."""
     config = load_config(trip.from_country)
     search_transport, search_hotels = process_search_preferences(trip)
 
+    parsers_to_run = []
     if search_transport:
-        handle_transport_search(trip, config)
+        parsers_to_run.extend(get_transport_parsers(trip, config))
 
     if search_hotels:
-        handle_hotel_search(trip, config)
+        parsers_to_run.extend(get_hotel_parsers(trip, config))
 
-def _search_transport(query_template: SearchQuery, config: dict, transport_type: str):
-    """Helper function to perform a single transport search."""
+    if not parsers_to_run:
+        logging.info("No searches to perform.")
+        return
+
+    logging.info(f"--- Starting {len(parsers_to_run)} searches in parallel ---")
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        futures = [executor.submit(_execute_search, parser) for parser in parsers_to_run]
+
+        for future in concurrent.futures.as_completed(futures):
+            # This loop ensures we wait for all tasks to complete.
+            # Exceptions are handled in the _execute_search wrapper.
+            pass
+    logging.info("--- All parallel searches completed ---")
+
+
+def _get_transport_parsers_for_type(query_template: SearchQuery, config: dict, transport_type: str) -> list[Parser]:
+    """Helper function to get a list of Parser objects for a single transport search."""
+    parsers = []
     settings = config.get(transport_type, [])
     message = (
-        f"Searching {transport_type} from {query_template.from_city} "
+        f"Preparing {transport_type} search from {query_template.from_city} "
         f"in {countries.get(query_template.from_country)} to {query_template.to_city} in {countries.get(query_template.to_country)}. "
         f"Between {query_template.start_date} and {query_template.end_date}"
     )
@@ -157,22 +182,21 @@ def _search_transport(query_template: SearchQuery, config: dict, transport_type:
     logging.info(f"Found {len(settings)} providers for {transport_type}")
     for params in settings:
         query = replace(query_template, params=params)
-        transport = Parser(query)
-        transport.search()
+        parsers.append(Parser(query))
+    return parsers
 
-def handle_transport_search(trip: TripRequest, config: dict):
-    """Handles the transport search logic with improved car rental logic."""
-    logging.info("--- Starting transport search ---")
+def get_transport_parsers(trip: TripRequest, config: dict) -> list[Parser]:
+    """Gathers all transport-related Parser objects to be run."""
+    logging.info("--- Preparing transport searches ---")
+    all_parsers = []
 
-    # --- Main Transport Handling ---
-
-    # Scenario 1: Main transport is a car for a round trip. This covers the whole trip.
+    # Scenario 1: Main transport is a car for a round trip.
     if trip.transport_start.transport_type == 'cars' and trip.round_trip:
         logging.info("Main transport is a roundtrip car rental. This will be the only transport search.")
         car_query = SearchQuery(
             from_city=trip.from_city,
             from_country=trip.from_country,
-            to_city=trip.from_city,  # Dropoff is the same as pickup
+            to_city=trip.from_city,
             to_country=trip.from_country,
             start_date=datetime.datetime.strptime(trip.start_date, "%Y-%m-%dT%H:%M"),
             end_date=datetime.datetime.strptime(trip.end_date, "%Y-%m-%dT%H:%M"),
@@ -180,20 +204,18 @@ def handle_transport_search(trip: TripRequest, config: dict):
             round_trip=True,
             params={},
             pickup_place=trip.transport_start.pickup_place,
-            return_place=trip.transport_start.pickup_place # Return to the same place
+            return_place=trip.transport_start.pickup_place
         )
-        _search_transport(car_query, config, "cars")
-        logging.info("--- Finished transport search (roundtrip car rental) ---")
-        return # End of all transport searches
+        all_parsers.extend(_get_transport_parsers_for_type(car_query, config, "cars"))
+        return all_parsers
 
     # Scenario 2: Main transport is a one-way car, or another transport type.
-    # First, handle the main outbound transport.
-    if trip.transport_start.transport_type == 'cars': # One-way car
+    if trip.transport_start.transport_type == 'cars':
         logging.info("Main transport is a one-way car rental.")
         outbound_query = SearchQuery(
             from_city=trip.from_city,
             from_country=trip.from_country,
-            to_city=trip.places[-1].place, # One-way to the final destination
+            to_city=trip.places[-1].place,
             to_country=trip.places[-1].country,
             start_date=datetime.datetime.strptime(trip.start_date, "%Y-%m-%dT%H:%M"),
             end_date=datetime.datetime.strptime(trip.end_date, "%Y-%m-%dT%H:%M"),
@@ -203,13 +225,13 @@ def handle_transport_search(trip: TripRequest, config: dict):
             pickup_place=trip.transport_start.pickup_place,
             return_place=trip.transport_end.return_place
         )
-        _search_transport(outbound_query, config, trip.transport_start.transport_type)
-    else: # Flights or Trains
+        all_parsers.extend(_get_transport_parsers_for_type(outbound_query, config, trip.transport_start.transport_type))
+    else:
         logging.info(f"Main transport is {trip.transport_start.transport_type}.")
         outbound_query = SearchQuery(
             from_city=trip.from_city,
             from_country=trip.from_country,
-            to_city=trip.places[0].place, # To the first destination
+            to_city=trip.places[0].place,
             to_country=trip.places[0].country,
             start_date=datetime.datetime.strptime(trip.start_date, "%Y-%m-%dT%H:%M"),
             end_date=datetime.datetime.strptime(trip.end_date, "%Y-%m-%dT%H:%M"),
@@ -219,14 +241,11 @@ def handle_transport_search(trip: TripRequest, config: dict):
             pickup_place=trip.transport_start.pickup_place,
             return_place=trip.transport_end.return_place
         )
-        _search_transport(outbound_query, config, trip.transport_start.transport_type)
+        all_parsers.extend(_get_transport_parsers_for_type(outbound_query, config, trip.transport_start.transport_type))
 
-
-    # --- Additional Transport Between Places ---
-
-    # Search for cars between places (only if main transport isn't a car)
+    # Search for cars between places
     if trip.cars_between_places and trip.transport_start.transport_type != 'cars':
-        logging.info("--- Searching for cars between places ---")
+        logging.info("--- Preparing car searches between places ---")
         car_query = SearchQuery(
             from_city=trip.places[0].place,
             from_country=trip.places[0].country,
@@ -240,14 +259,13 @@ def handle_transport_search(trip: TripRequest, config: dict):
             pickup_place=None,
             return_place=None
         )
-        _search_transport(car_query, config, "cars")
+        all_parsers.extend(_get_transport_parsers_for_type(car_query, config, "cars"))
 
     # Search for trains between places
     if trip.trains_between_places:
-        logging.info("--- Searching for trains between places ---")
+        logging.info("--- Preparing train searches between places ---")
         current_date = datetime.datetime.strptime(trip.start_date, "%Y-%m-%dT%H:%M")
         for i in range(len(trip.places) - 1):
-            # Nights at place[i] determine the departure date for the next leg
             if trip.places[i].nights > 0:
                 current_date += datetime.timedelta(days=trip.places[i].nights)
 
@@ -257,18 +275,18 @@ def handle_transport_search(trip: TripRequest, config: dict):
                 to_city=trip.places[i+1].place,
                 to_country=trip.places[i+1].country,
                 start_date=current_date,
-                end_date=current_date, # Train trips are on a specific day
+                end_date=current_date,
                 adults=trip.adults,
                 round_trip=False,
                 params={},
                 pickup_place=None,
                 return_place=None
             )
-            _search_transport(train_query, config, "trains")
+            all_parsers.extend(_get_transport_parsers_for_type(train_query, config, "trains"))
 
-    # --- Return Trip Handling (if not a roundtrip) ---
+    # Return Trip Handling
     if not trip.round_trip:
-        logging.info("Handling return trip")
+        logging.info("Preparing return trip search")
         new_end_date = f"{trip.end_date[:10]}T{trip.back_time}"
         return_query = SearchQuery(
             from_city=trip.places[-1].place,
@@ -283,19 +301,22 @@ def handle_transport_search(trip: TripRequest, config: dict):
             pickup_place=trip.transport_end.return_place,
             return_place=trip.transport_start.pickup_place
         )
-        _search_transport(return_query, config, trip.transport_end.transport_type)
+        all_parsers.extend(_get_transport_parsers_for_type(return_query, config, trip.transport_end.transport_type))
 
-    logging.info("--- Finished transport search ---")
+    logging.info("--- Finished preparing transport searches ---")
+    return all_parsers
 
-def handle_hotel_search(trip: TripRequest, config: dict):
-    """Handles the hotel search logic."""
-    logging.info("Searching for hotels!")
+def get_hotel_parsers(trip: TripRequest, config: dict) -> list[Parser]:
+    """Gathers all hotel-related Parser objects to be run."""
+    logging.info("--- Preparing hotel searches ---")
+    parsers = []
     settings = config.get("hotels", [])
     hotel_checkin = datetime.datetime.strptime(trip.start_date, "%Y-%m-%dT%H:%M")
 
     for place_details in trip.places:
         if place_details.nights > 0:
             hotel_checkout = hotel_checkin + datetime.timedelta(days=place_details.nights)
+            logging.info(f"Preparing hotel search for {place_details.place} from {hotel_checkin} to {hotel_checkout}")
 
             for params in settings:
                 query = SearchQuery(
@@ -309,11 +330,10 @@ def handle_hotel_search(trip: TripRequest, config: dict):
                     round_trip=trip.round_trip,
                     params=params
                 )
-                hotels = Parser(query)
-                hotels.search()
+                parsers.append(Parser(query))
 
             hotel_checkin = hotel_checkout
-            time.sleep(3)
+    return parsers
 
 # --- Routes ---
 @app.route("/login")
