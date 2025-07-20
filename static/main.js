@@ -52,7 +52,7 @@ document.getElementById("startTime").addEventListener("change", function(){
 // add new place to list (click on the button)
 document.getElementById("placesButton").addEventListener("click", function() {
 
-    const countries = document.getElementById("toCountry");
+    const countries = document.getElementById("fromCountry");
     places = document.getElementsByName("places[]");
 
     input = document.createElement("input");
@@ -82,7 +82,7 @@ document.getElementById("placesButton").addEventListener("click", function() {
     input2.placeholder = "Nights to stay";
     input2.required = "required";
     input2.className = "nights";
-    input2.setAttribute("min", "1");
+    input2.setAttribute("min", "0");
 
     input2.addEventListener("change", function(){
         validateNights();
@@ -94,6 +94,7 @@ document.getElementById("placesButton").addEventListener("click", function() {
 
     button.addEventListener("click", function(){
         this.parentNode.parentNode.remove();
+        validateNights();
     });
 
     div = document.createElement("div");
@@ -111,6 +112,7 @@ document.getElementById("placesButton").addEventListener("click", function() {
     li.draggable = "true";
     li.className = "drag-item";
     document.getElementById("placesList").appendChild(li);
+    validateNights();
 });
 
 // dates calculations
@@ -128,19 +130,7 @@ function updatedTime() {
         document.getElementById("nights").value = days - 1 ;
         nights = days - 1;
     }
-
-    setPlacesDivVisibility();
     validateNights();
-}
-
-// toggle visibilty of places depending on nights
-function setPlacesDivVisibility() {
-
-    if (nights > 0) {
-        document.getElementById("placesDiv").style.display = "block";
-    } else {
-        document.getElementById("placesDiv").style.display = "none";
-    }
 }
 
 // drag and drop magic
@@ -202,15 +192,31 @@ dragList.addEventListener('drop', handleDrop);
   function validateNights() {
     console.log("validateNights");
 
-    var nights = document.getElementsByClassName("nights");
+    var nightsElements = document.getElementsByClassName("nights");
     var submit = document.getElementById("submit");
     var totalNights = 0;
 
     submit.removeAttribute("disabled");
     document.getElementById("error").textContent = "";
 
-    for (var i = 0; i < nights.length; i++) {
-        totalNights += parseInt(nights[i].value);
+    for (var i = 0; i < nightsElements.length; i++) {
+        var nightsValue = parseInt(nightsElements[i].value);
+        if (isNaN(nightsValue)) {
+            nightsValue = 0;
+        }
+
+        if (nightsValue < 0) {
+            submit.setAttribute("disabled", "disabled");
+            document.getElementById("error").textContent = "Nights cannot be negative";
+            return;
+        }
+
+        if (nightsValue === 0 && i > 0 && i < nightsElements.length - 1) {
+            submit.setAttribute("disabled", "disabled");
+            document.getElementById("error").textContent = "Only the first and last place can have 0 nights";
+            return;
+        }
+        totalNights += nightsValue;
     }
 
     if (totalNights > document.getElementById("nights").value) {
@@ -218,11 +224,6 @@ dragList.addEventListener('drop', handleDrop);
         document.getElementById("error").textContent = "Sum of nights cannot be greater than total nights of trip";
 
         return;
-    }
-
-    if (totalNights < document.getElementById("nights").value) {
-        submit.setAttribute("disabled", "disabled");
-        document.getElementById("error").textContent = "Sum of nights needs to be equal to total nights of trip";
     }
 
     var nightsLeftElements = document.getElementsByClassName("nightsLeft");

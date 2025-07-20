@@ -15,6 +15,8 @@ class TripRequest:
     round_trip: bool
     hotels_only: bool
     transport_only: bool
+    cars_between_places: bool
+    trains_between_places: bool
     transport_start: TransportDetails
     transport_end: TransportDetails
     places: List[AccommodationDetails] = field(default_factory=list)

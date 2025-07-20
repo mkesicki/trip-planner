@@ -68,15 +68,17 @@ def parse_request(args: dict) -> TripRequest:
 
     return TripRequest(
         from_country=args.get('fromCountry'),
-        to_country=args.get('toCountry'),
+        to_country=accommodations[-1].country,
         from_city=args.get('fromCity'),
         start_date=args.get('start'),
         end_date=args.get('end'),
         back_time=args.get('backTime'),
         adults=int(args.get('adults')),
         round_trip=args.get('roundtrip') == 'on',
-        hotels_only=args.get('hotelsOnly') == 'on',
-        transport_only=args.get('transportOnly') == 'on',
+        transport_only=args.get('transport_only') == 'on',
+        hotels_only=args.get('hotels_only') == 'on',
+        cars_between_places=args.get('cars_between_places') == 'on',
+        trains_between_places=args.get('trains_between_places') == 'on',
         transport_start=transport_start,
         transport_end=transport_end,
         places=accommodations
@@ -103,16 +105,43 @@ def load_config(from_country: str) -> dict:
         "hotels": config_main.get("hotels", []) + config_local.get("hotels", [])
     }
 
+def validate_places(places, total_trip_days):
+    """Validates the places and nights."""
+    total_nights = 0
+    for i, place in enumerate(places):
+        nights = place.nights
+        total_nights += nights
+
+        if nights < 0:
+            raise ValueError(f"Nights cannot be negative for {place.place}")
+
+        if nights == 0 and i != 0 and i != len(places) - 1:
+            raise ValueError(f"Only the first and last place can have 0 nights, not {place.place}")
+
+    if total_nights > total_trip_days:
+        raise ValueError("Total nights exceed trip duration")
+
+def process_search_preferences(trip: TripRequest) -> (bool, bool):
+    """Determines what to search based on user preferences."""
+    search_transport = True
+    search_hotels = True
+
+    if trip.transport_only and not trip.hotels_only:
+        search_hotels = False
+    elif trip.hotels_only and not trip.transport_only:
+        search_transport = False
+
+    return search_transport, search_hotels
+
 def handle_search(trip: TripRequest):
     """Handles the search logic for the given trip."""
     config = load_config(trip.from_country)
+    search_transport, search_hotels = process_search_preferences(trip)
 
-    # Handle start trip transport
-    if not trip.hotels_only:
+    if search_transport:
         handle_transport_search(trip, config)
 
-    # Handle hotel search
-    if not trip.transport_only:
+    if search_hotels:
         handle_hotel_search(trip, config)
 
 def _search_transport(query_template: SearchQuery, config: dict, transport_type: str):
@@ -154,6 +183,30 @@ def handle_transport_search(trip: TripRequest, config: dict):
         trip.transport_start.transport_type
     )
 
+    # Search for transport between places
+    if trip.cars_between_places or trip.trains_between_places:
+        start_date = datetime.datetime.strptime(trip.start_date, "%Y-%m-%dT%H:%M")
+        for i in range(len(trip.places) - 1):
+            start_date += datetime.timedelta(days=trip.places[i].nights)
+            query = SearchQuery(
+                from_city=trip.places[i].place,
+                from_country=trip.places[i].country,
+                to_city=trip.places[i+1].place,
+                to_country=trip.places[i+1].country,
+                start_date=start_date,
+                end_date=start_date,
+                adults=trip.adults,
+                round_trip=False,
+                params={},
+                pickup_place=None,
+                return_place=None
+            )
+            if trip.cars_between_places:
+                _search_transport(query, config, "cars")
+            if trip.trains_between_places:
+                _search_transport(query, config, "trains")
+
+
     # Search for the return trip if it's not a round trip
     if not trip.round_trip:
         logging.info("Handling return trip")
@@ -185,25 +238,26 @@ def handle_hotel_search(trip: TripRequest, config: dict):
     hotel_checkin = datetime.datetime.strptime(trip.start_date, "%Y-%m-%dT%H:%M")
 
     for place_details in trip.places:
-        hotel_checkout = hotel_checkin + datetime.timedelta(days=place_details.nights)
+        if place_details.nights > 0:
+            hotel_checkout = hotel_checkin + datetime.timedelta(days=place_details.nights)
 
-        for params in settings:
-            query = SearchQuery(
-                from_city="",
-                from_country=trip.from_country,
-                to_city=place_details.place,
-                to_country=countries.get(place_details.country),
-                start_date=hotel_checkin,
-                end_date=hotel_checkout,
-                adults=trip.adults,
-                round_trip=trip.round_trip,
-                params=params
-            )
-            hotels = Parser(query)
-            hotels.search()
+            for params in settings:
+                query = SearchQuery(
+                    from_city="",
+                    from_country=trip.from_country,
+                    to_city=place_details.place,
+                    to_country=countries.get(place_details.country),
+                    start_date=hotel_checkin,
+                    end_date=hotel_checkout,
+                    adults=trip.adults,
+                    round_trip=trip.round_trip,
+                    params=params
+                )
+                hotels = Parser(query)
+                hotels.search()
 
-        hotel_checkin = hotel_checkout
-        time.sleep(3)
+            hotel_checkin = hotel_checkout
+            time.sleep(3)
 
 # --- Routes ---
 @app.route("/login")
@@ -233,6 +287,12 @@ def start():
 def planner():
     try:
         trip_request = parse_request(request.args)
+        if not trip_request.places:
+            raise ValueError("At least one place to visit must be added.")
+        start_date = datetime.datetime.strptime(trip_request.start_date, "%Y-%m-%dT%H:%M")
+        end_date = datetime.datetime.strptime(trip_request.end_date, "%Y-%m-%dT%H:%M")
+        total_days = (end_date - start_date).days
+        validate_places(trip_request.places, total_days)
         handle_search(trip_request)
         return render_template('planner.html', countries=countries, request=request)
     except (KeyError, ValueError) as e:

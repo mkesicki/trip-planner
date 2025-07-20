@@ -56,8 +56,14 @@
                 <legend>Preferences</legend>
                 <div class="form-group-checkbox">
                     <label><input type="checkbox" name="roundtrip" id="roundtrip" /> Is it a round trip?</label>
-                    <label><input type="checkbox" name="hotelsOnly" id="hotelsOnly" /> Find hotels only?</label>
-                    <label><input type="checkbox" name="transportOnly" id="transportOnly" /> Find transport only?</label>
+                </div>
+                <div class="form-group-checkbox">
+                    <label><input type="checkbox" name="transport_only" id="transportOnly" /> Find transport only</label>
+                    <label><input type="checkbox" name="hotels_only" id="hotelsOnly" /> Find hotels only</label>
+                </div>
+                <div class="form-group-checkbox">
+                    <label><input type="checkbox" name="cars_between_places" id="carsBetweenPlaces" /> Search cars between places</label>
+                    <label><input type="checkbox" name="trains_between_places" id="trainsBetweenPlaces" /> Search trains between places</label>
                 </div>
             </fieldset>
 
@@ -124,22 +130,13 @@
                         <small>This sets the config file for searching.</small>
                     </div>
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="toCountry">Trip to Country:</label>
-                        <select id="toCountry" name="toCountry">
-                            {% for country in countries %}
-                                <option value="{{ country }}" {% if country == "ES" %} selected="selected" {% endif %}>{{ countries[country] }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
             </fieldset>
 
             <div id="placesDiv" style="margin-top:10px;">
                 <fieldset>
                     <legend>Places to Visit</legend>
                     <p>Add places you want to visit during your trip.</p>
+                    <small>Last place is where you'll catch return transport back home</small>
                     <div class="form-group">
                         <label>Nights Left: <input type="number" name="nightsLeft2" id="nightsLeft2" readonly="readonly" class="nightsLeft" /></label>
                     </div>
