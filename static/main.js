@@ -35,8 +35,11 @@ document.getElementById("transportEnd").addEventListener("change", function(){
 document.getElementById("transportStart").addEventListener("change", function(){
   if(this.value == 'cars') {
       document.getElementById("carPickupPlace").style.display = "inline";
+      document.getElementById("carsBetweenPlacesContainer").style.display = "none";
+      document.getElementById("carsBetweenPlaces").checked = false;
   } else {
     document.getElementById("carPickupPlace").style.display = "none";
+    document.getElementById("carsBetweenPlacesContainer").style.display = "block";
   }
 });
 

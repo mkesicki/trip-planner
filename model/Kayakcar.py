@@ -3,9 +3,10 @@ import requests
 import webbrowser
 from .data_classes import SearchQuery
 
-class KayakCar:
+class Kayakcar:
 
     def parse(self, query: SearchQuery):
+
         startTrip = query.start_date.strftime(query.params.get("dateFormat"))
         endTrip = query.end_date.strftime(query.params.get("dateFormat"))
 

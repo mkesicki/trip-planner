@@ -161,59 +161,118 @@ def _search_transport(query_template: SearchQuery, config: dict, transport_type:
         transport.search()
 
 def handle_transport_search(trip: TripRequest, config: dict):
-    """Handles the transport search logic."""
+    """Handles the transport search logic with improved car rental logic."""
     logging.info("--- Starting transport search ---")
-    # Search for the outbound trip
-    outbound_query = SearchQuery(
-        from_city=trip.from_city,
-        from_country=trip.from_country,
-        to_city=trip.places[0].place,
-        to_country=trip.to_country,
-        start_date=datetime.datetime.strptime(trip.start_date, "%Y-%m-%dT%H:%M"),
-        end_date=datetime.datetime.strptime(trip.end_date, "%Y-%m-%dT%H:%M"),
-        adults=trip.adults,
-        round_trip=trip.round_trip,
-        params={},
-        pickup_place=trip.transport_start.pickup_place,
-        return_place=trip.transport_end.return_place
-    )
-    _search_transport(
-        outbound_query,
-        config,
-        trip.transport_start.transport_type
-    )
 
-    # Search for transport between places
-    if trip.cars_between_places or trip.trains_between_places:
-        start_date = datetime.datetime.strptime(trip.start_date, "%Y-%m-%dT%H:%M")
+    # --- Main Transport Handling ---
+
+    # Scenario 1: Main transport is a car for a round trip. This covers the whole trip.
+    if trip.transport_start.transport_type == 'cars' and trip.round_trip:
+        logging.info("Main transport is a roundtrip car rental. This will be the only transport search.")
+        car_query = SearchQuery(
+            from_city=trip.from_city,
+            from_country=trip.from_country,
+            to_city=trip.from_city,  # Dropoff is the same as pickup
+            to_country=trip.from_country,
+            start_date=datetime.datetime.strptime(trip.start_date, "%Y-%m-%dT%H:%M"),
+            end_date=datetime.datetime.strptime(trip.end_date, "%Y-%m-%dT%H:%M"),
+            adults=trip.adults,
+            round_trip=True,
+            params={},
+            pickup_place=trip.transport_start.pickup_place,
+            return_place=trip.transport_start.pickup_place # Return to the same place
+        )
+        _search_transport(car_query, config, "cars")
+        logging.info("--- Finished transport search (roundtrip car rental) ---")
+        return # End of all transport searches
+
+    # Scenario 2: Main transport is a one-way car, or another transport type.
+    # First, handle the main outbound transport.
+    if trip.transport_start.transport_type == 'cars': # One-way car
+        logging.info("Main transport is a one-way car rental.")
+        outbound_query = SearchQuery(
+            from_city=trip.from_city,
+            from_country=trip.from_country,
+            to_city=trip.places[-1].place, # One-way to the final destination
+            to_country=trip.places[-1].country,
+            start_date=datetime.datetime.strptime(trip.start_date, "%Y-%m-%dT%H:%M"),
+            end_date=datetime.datetime.strptime(trip.end_date, "%Y-%m-%dT%H:%M"),
+            adults=trip.adults,
+            round_trip=False,
+            params={},
+            pickup_place=trip.transport_start.pickup_place,
+            return_place=trip.transport_end.return_place
+        )
+        _search_transport(outbound_query, config, trip.transport_start.transport_type)
+    else: # Flights or Trains
+        logging.info(f"Main transport is {trip.transport_start.transport_type}.")
+        outbound_query = SearchQuery(
+            from_city=trip.from_city,
+            from_country=trip.from_country,
+            to_city=trip.places[0].place, # To the first destination
+            to_country=trip.places[0].country,
+            start_date=datetime.datetime.strptime(trip.start_date, "%Y-%m-%dT%H:%M"),
+            end_date=datetime.datetime.strptime(trip.end_date, "%Y-%m-%dT%H:%M"),
+            adults=trip.adults,
+            round_trip=trip.round_trip,
+            params={},
+            pickup_place=trip.transport_start.pickup_place,
+            return_place=trip.transport_end.return_place
+        )
+        _search_transport(outbound_query, config, trip.transport_start.transport_type)
+
+
+    # --- Additional Transport Between Places ---
+
+    # Search for cars between places (only if main transport isn't a car)
+    if trip.cars_between_places and trip.transport_start.transport_type != 'cars':
+        logging.info("--- Searching for cars between places ---")
+        car_query = SearchQuery(
+            from_city=trip.places[0].place,
+            from_country=trip.places[0].country,
+            to_city=trip.places[-1].place,
+            to_country=trip.places[-1].country,
+            start_date=datetime.datetime.strptime(trip.start_date, "%Y-%m-%dT%H:%M"),
+            end_date=datetime.datetime.strptime(trip.end_date, "%Y-%m-%dT%H:%M"),
+            adults=trip.adults,
+            round_trip=False,
+            params={},
+            pickup_place=None,
+            return_place=None
+        )
+        _search_transport(car_query, config, "cars")
+
+    # Search for trains between places
+    if trip.trains_between_places:
+        logging.info("--- Searching for trains between places ---")
+        current_date = datetime.datetime.strptime(trip.start_date, "%Y-%m-%dT%H:%M")
         for i in range(len(trip.places) - 1):
-            start_date += datetime.timedelta(days=trip.places[i].nights)
-            query = SearchQuery(
+            # Nights at place[i] determine the departure date for the next leg
+            if trip.places[i].nights > 0:
+                current_date += datetime.timedelta(days=trip.places[i].nights)
+
+            train_query = SearchQuery(
                 from_city=trip.places[i].place,
                 from_country=trip.places[i].country,
                 to_city=trip.places[i+1].place,
                 to_country=trip.places[i+1].country,
-                start_date=start_date,
-                end_date=start_date,
+                start_date=current_date,
+                end_date=current_date, # Train trips are on a specific day
                 adults=trip.adults,
                 round_trip=False,
                 params={},
                 pickup_place=None,
                 return_place=None
             )
-            if trip.cars_between_places:
-                _search_transport(query, config, "cars")
-            if trip.trains_between_places:
-                _search_transport(query, config, "trains")
+            _search_transport(train_query, config, "trains")
 
-
-    # Search for the return trip if it's not a round trip
+    # --- Return Trip Handling (if not a roundtrip) ---
     if not trip.round_trip:
         logging.info("Handling return trip")
         new_end_date = f"{trip.end_date[:10]}T{trip.back_time}"
         return_query = SearchQuery(
             from_city=trip.places[-1].place,
-            from_country=trip.to_country,
+            from_country=trip.places[-1].country,
             to_city=trip.from_city,
             to_country=trip.from_country,
             start_date=datetime.datetime.strptime(trip.end_date, "%Y-%m-%dT%H:%M"),
@@ -224,11 +283,8 @@ def handle_transport_search(trip: TripRequest, config: dict):
             pickup_place=trip.transport_end.return_place,
             return_place=trip.transport_start.pickup_place
         )
-        _search_transport(
-            return_query,
-            config,
-            trip.transport_end.transport_type
-        )
+        _search_transport(return_query, config, trip.transport_end.transport_type)
+
     logging.info("--- Finished transport search ---")
 
 def handle_hotel_search(trip: TripRequest, config: dict):

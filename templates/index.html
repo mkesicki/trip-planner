@@ -61,8 +61,10 @@
                     <label><input type="checkbox" name="transport_only" id="transportOnly" /> Find transport only</label>
                     <label><input type="checkbox" name="hotels_only" id="hotelsOnly" /> Find hotels only</label>
                 </div>
-                <div class="form-group-checkbox">
+                <div class="form-group-checkbox" id="carsBetweenPlacesContainer">
                     <label><input type="checkbox" name="cars_between_places" id="carsBetweenPlaces" /> Search cars between places</label>
+                </div>
+                <div class="form-group-checkbox">
                     <label><input type="checkbox" name="trains_between_places" id="trainsBetweenPlaces" /> Search trains between places</label>
                 </div>
             </fieldset>
@@ -84,7 +86,7 @@
                             <select id="pickuplPlace" name="pickupPlace">
                                 <option value="">All</option>
                                 <option value="airport">Airport</option>
-                                <option value="train station">Train Station</option>
+                                <option value="train_station">Train Station</option>
                             </select>
                         </div>
                     </div>
@@ -106,7 +108,7 @@
                             <select id="returnPlace" name="returnPlace">
                                 <option value="">All</option>
                                 <option value="airport">Airport</option>
-                                <option value="train station">Train Station</option>
+                                <option value="train_station">Train Station</option>
                             </select>
                         </div>
                     </div>
