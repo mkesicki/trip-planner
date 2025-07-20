@@ -4,7 +4,7 @@
             "url" : "https://www.kayak.es/cars/{departure}/{dateFrom}-{timeStart}h/{dateBack}-{timeEnd}h/",
             "urlOneWay" : "https://www.kayak.es/cars/{departure}/{arrival}/{dateFrom}-{timeStart}h/{dateBack}-{timeEnd}h/",
             "type" : "parseWeb",
-            "company" : "KayakCar",
+            "company" : "Kayakcar",
             "dateFormat" : "%Y-%m-%d",
             "queryParams" : "?fs=caroption=Automatic&sort=rank_a"
         },
@@ -25,8 +25,8 @@
             "dateFormat" : "%Y-%m-%dT%H:00",
             "queryParams" : "&zen_filters=%7B%22group_type%22%3A%5B%5D%2C%22transmission_type%22%3A%5B%7B%22key%22%3A%22transmission_type%22%2C%22value%22%3A%22TRANSMISSION_TYPE_AUTOMATIC%22%7D%5D%2C%22passengers_count%22%3A%5B%7B%22value%22%3A%222%22%2C%22key%22%3A%22passengers_count%22%7D%5D%2C%22bags_count%22%3A%5B%7B%22value%22%3A%220%22%2C%22key%22%3A%22bags_count%22%7D%5D%2C%22minimum_driver_age%22%3A%5B%7B%22value%22%3A%2231%22%2C%22key%22%3A%22minimum_driver_age%22%7D%5D%7D&zen_resident_country_code=&zen_order_is_ascending=true&zen_order_by=sort_order&zen_booking_id=0d13c087-4c4b-438c-8cbc-62db4e4ddadc"
         },
-        {
-            "url" : "https://cars.booking.com/search-results?aid=304142&coordinates={pickupCords}{times}&dropCoordinates={dropCords}&dropLocation=&dropLocationName={dropLocationName}&locationName={pickupLocationName}",
+     {
+            "url" : "https://cars.booking.com/search-results?aid=304142{times}&dropLocation=&dropLocationName={dropLocationName}&locationName={pickupLocationName}",
             "type" : "parseWeb",
             "company" : "RentalCars",
             "dateFormat" : "%Y-%m-%dT%H:00",
@@ -69,19 +69,18 @@
             "airportCode" : "IATA",
             "dateFormat" : "%Y-%m-%d",
             "params" : {
-                "cookiesAccept" : "/html/body/c-wiz/div/div/div/div[2]/div[1]/div[3]/div[1]/div[1]/form[2]/div/div/button/span",
-                "confirmAirportClass" : "yfemgb",
-                "departure" :  "//*[@id=\"i21\"]/div[1]/div/div/div[1]/div/div/input",
-                "arrival" : "/html/body/c-wiz[2]/div/div[2]/c-wiz/div[1]/c-wiz/div[2]/div[1]/div[1]/div[1]/div/div[2]/div[1]/div[4]/div/div/div[1]/div/div/input",
-                "dateFrom" : "/html/body/c-wiz[2]/div/div[2]/c-wiz/div[1]/c-wiz/div[2]/div[1]/div[1]/div[1]/div/div[2]/div[2]/div/div/div[1]/div/div/div[1]/div/div[1]/div/input",
-                "dateBack" : "/html/body/c-wiz[2]/div/div[2]/c-wiz/div[1]/c-wiz/div[2]/div[1]/div[1]/div[1]/div/div[2]/div[2]/div/div/div[1]/div/div/div[1]/div/div[2]/div/input",
-                "dateConfirm" : "/html/body/c-wiz[2]/div/div[2]/c-wiz/div[1]/c-wiz/div[2]/div[1]/div[1]/div[1]/div/div[2]/div[2]/div/div/div[2]/div/div[3]/div[3]/div/button",
-                "adultsInit" : "/html/body/c-wiz[2]/div/div[2]/c-wiz/div[1]/c-wiz/div[2]/div[1]/div[1]/div[1]/div/div[1]/div[2]/div/div[1]/div/button",
-                "adults" : "/html/body/c-wiz[2]/div/div[2]/c-wiz/div[1]/c-wiz/div[2]/div[1]/div[1]/div[1]/div/div[1]/div[2]/div/div[2]/ul/li[1]/div/div/span[3]/button",
-                "adultsConfirm" : "/html/body/c-wiz[2]/div/div[2]/c-wiz/div[1]/c-wiz/div[2]/div[1]/div[1]/div[1]/div/div[1]/div[2]/div/div[2]/div[2]/button[1]",
-                "submit" : "/html/body/c-wiz[2]/div/div[2]/c-wiz/div[1]/c-wiz/div[2]/div[1]/div[1]/div[2]/div/button",
-                "oneWayInit" : "/html/body/c-wiz[2]/div/div[2]/c-wiz/div[1]/c-wiz/div[2]/div[1]/div[1]/div[1]/div/div[1]/div[1]",
-                "oneWay" : "/html/body/c-wiz[2]/div/div[2]/c-wiz/div[1]/c-wiz/div[2]/div[1]/div[1]/div[1]/div/div[1]/div[1]/div/div/div/div[2]/ul/li[2]"
+                "cookiesAccept" : "",
+                "confirmAirportClass" : "",
+                "departure" :  "",
+                "arrival" : "",
+                "dateFrom" : "",
+                "dateBack" : "",
+                "dateConfirm" : "",
+                "adultsInit" : "",
+                "adults" : "",
+                "adultsConfirm" :"",
+                "submit" : "",
+                "oneWay" : ""
             }
         },
         {
@@ -113,8 +112,23 @@
         }
     ],
 
-
-      "trains": [
-            ]
-
+    "trains": [
+        {
+            "url" : "https://www.thetrainline.com/book/results?origin={departure}&destination={arrival}&outwardDate={dateFrom}&outwardDateType=departAfter&inwardDate={dateBack}&inwardDateType=departAfter&journeySearchType=return",
+            "urlOneWay" : "https://www.thetrainline.com/book/results?origin={departure}&destination={arrival}&outwardDate={dateFrom}&outwardDateType=departAfter&journeySearchType=single",
+            "type" : "parseWeb",
+            "company" : "TheTrainLine",
+            "dateFormat" : "%Y-%m-%dT%H:%M:00",
+            "queryParams" : "",
+            "params" : {
+                "cookiesAccept" : "",
+                "departure" :  "",
+                "arrival" : "",
+                "dateFrom" : "",
+                "dateBack" : "",
+                "submit" : "",
+                "adults": ""
+            }
+        }
+    ]
 }

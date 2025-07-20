@@ -9,7 +9,7 @@ from selenium.webdriver.firefox.service import Service as FirefoxService
 from webdriver_manager.firefox import GeckoDriverManager
 from .data_classes import SearchQuery
 
-class DoYouSpain:
+class Doyouspain:
 
     def parse(self, query: SearchQuery):
         startTrip = query.start_date.strftime(query.params.get("dateFormat"))

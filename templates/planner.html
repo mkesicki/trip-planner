@@ -26,6 +26,7 @@
                 <p>From: <span class="bold">{{ request.args.get('fromCity').title() }}</span>, {{ countries[request.args.get('fromCountry')] }}</p>
                 <p>To: <span class="bold">{{ request.args.getlist('places[]')[-1].title() }}</span>, {{ countries[request.args.get('toCountry')] }}</p>
                 <p>Starts: <span class="bold">{{ request.args.get('start') }}</span> | Ends: <span class="bold">{{ request.args.get('end') }}</span></p>
+                <p>Passengers: <span class="bold">{{ request.args.get('adults') }}</span></p>
             </div>
 
             <div class="summary-card">
