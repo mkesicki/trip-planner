@@ -42,9 +42,10 @@ class Parser:
                 departureCountry=self.query.from_country
             )
             logging.info("url: " + url)
-            webbrowser.open(url)
+            return url
 
         elif self.query.params.get("type") == "parseWeb":
+            # TODO: This needs to be handled. For now, it will not do anything.
             company = self.query.params.get("company")
             if importlib.util.find_spec(f"model.{company}", f"./{company}.py") is not None:
                 try:
@@ -54,6 +55,7 @@ class Parser:
                     obj.parse(self.query)
                 except (NoSuchElementException, ElementClickInterceptedException) as e:
                     logging.error(f"Handle selenium exception: {e}")
+        return None
 
     def findAirportCode(self, country: str, city: str, type: str = "IATA") -> str:
         airports = airportsdata.load(type)

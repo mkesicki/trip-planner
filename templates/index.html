@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trip Planner</title>
     <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='main.css')}}">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
     <header class="header">
@@ -15,142 +15,176 @@
     </header>
 
     <main class="container">
-        <div class="intro">
-            <h2>Please fill the form below.</h2>
-            <p>Remember to double-check the results.</p>
+
+        <!-- Form Section -->
+        <div id="form-section">
+            <div class="intro card">
+                <h2>Plan Your Next Adventure</h2>
+                <p>Fill out the details below to get started.</p>
+            </div>
+
+            <div id="error" class="error"></div>
+
+            <form id="trip-form">
+                <fieldset>
+                    <legend>Trip Details</legend>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="startTime">Start trip:</label>
+                            <input type="datetime-local" name="start" id="startTime" required/>
+                        </div>
+                        <div class="form-group">
+                            <label for="endTime">End trip:</label>
+                            <input type="datetime-local" name="end" id="endTime" required/>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Days: <input type="number" name="days" id="days" readonly/></label>
+                        </div>
+                        <div class="form-group">
+                            <label>Nights: <input type="number" name="nights" id="nights" readonly/></label>
+                        </div>
+                        <div class="form-group">
+                            <label>Nights Left: <input type="number" id="nightsLeft" readonly class="nightsLeft" /></label>
+                        </div>
+                    </div>
+                     <div class="form-group">
+                        <label for="adults">Number of adults</label>
+                        <input type="number" name="adults" id="adults" min="1" value="1" required/>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Preferences</legend>
+                    <div class="form-group-checkbox">
+                        <label><input type="checkbox" name="roundtrip" id="roundtrip" /> Is it a round trip?</label>
+                    </div>
+                    <div class="form-group-checkbox">
+                        <label><input type="checkbox" name="transport_only" id="transportOnly" /> Find transport only</label>
+                        <label><input type="checkbox" name="hotels_only" id="hotelsOnly" /> Find hotels only</label>
+                    </div>
+                    <div class="form-group-checkbox" id="carsBetweenPlacesContainer">
+                        <label><input type="checkbox" name="cars_between_places" id="carsBetweenPlaces" /> Rent a car for travel between destinations</label>
+                    </div>
+                    <div class="form-group-checkbox">
+                        <label><input type="checkbox" name="trains_between_places" id="trainsBetweenPlaces" /> Search trains between places</label>
+                    </div>
+                </fieldset>
+
+                <div id="transportContainer">
+                    <fieldset>
+                        <legend>Transportation</legend>
+                        <div class="transportType">
+                            <div id="transportStartDiv" class="form-group">
+                                <label for="transportStart">Transport type start:</label>
+                                <select name="transportStart" id="transportStart">
+                                    <option value="trains">Train</option>
+                                    <option value="flights">Plane</option>
+                                    <option value="cars">Car</option>
+                                </select>
+                            </div>
+                            <div id="carPickupPlace" class="form-group" style="display: none;">
+                                <label for="pickupPlace">Where to pickup car?</label>
+                                <select id="pickupPlace" name="pickupPlace">
+                                    <option value="">All</option>
+                                    <option value="airport">Airport</option>
+                                    <option value="train_station">Train Station</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="transportType" id="transportEndDiv">
+                            <div class="form-group">
+                                <label for="transportEnd">Transport type end:</label>
+                                <select name="transportEnd" id="transportEnd">
+                                    <option value="trains">Train</option>
+                                    <option value="flights">Plane</option>
+                                    <option value="cars">Car</option>
+                                </select>
+                            </div>
+                            <div id="backTimeContainer" class="form-group" style="display: none;">
+                                <label for="backTime">Estimated return time (for car)</label>
+                                <input type="time" name="backTime" id="backTime"/>
+                            </div>
+                            <div id="carReturnPlace" class="form-group">
+                                <label for="returnPlace">Where to return car?</label>
+                                <select id="returnPlace" name="returnPlace">
+                                    <option value="">All</option>
+                                    <option value="airport">Airport</option>
+                                    <option value="train_station">Train Station</option>
+                                </select>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <fieldset>
+                    <legend>Destinations</legend>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="fromCity">Trip from:</label>
+                            <input type="text" name="fromCity" id="fromCity" placeholder="City" value="Barcelona" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="fromCountry">Country:</label>
+                            <select id="fromCountry" name="fromCountry">
+                                {% for country in countries %}
+                                    <option value="{{ country }}" {% if country == "ES" %} selected="selected" {% endif %}>{{ countries[country] }}</option>
+                                {% endfor %}
+                            </select>
+                            <small>This sets the config file for searching.</small>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <div id="placesDiv" style="margin-top:10px;">
+                    <fieldset>
+                        <legend>Places to Visit</legend>
+                        <p>Add places you want to visit during your trip. The last place is where you'll catch return transport.</p>
+                        <div class="form-group">
+                            <label>Nights Left: <input type="number" readonly class="nightsLeft" /></label>
+                        </div>
+                        <input type="button" id="placesButton" value="Add New Place" />
+                        <ul id="placesList"></ul>
+                    </fieldset>
+                </div>
+
+                <div class="submit-container">
+                    <input type="submit" id="submit" value="Start Planning" disabled/>
+                </div>
+            </form>
         </div>
 
-        <div id="error" class="error"></div>
-
-        <form action="/planner">
-            <fieldset>
-                <legend>Trip Details</legend>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="startTime">Start trip:</label>
-                        <input type="datetime-local" name="start" id="startTime" />
-                    </div>
-                    <div class="form-group">
-                        <label for="endTime">End trip:</label>
-                        <input type="datetime-local" name="end" id="endTime" />
-                    </div>
+        <!-- Planner Section (hidden by default) -->
+        <div id="planner-section" style="display: none;">
+            <!-- Trip Summary -->
+            <div class="trip-summary card">
+                <div class="summary-card">
+                    <h3><span class="icon">✈️</span>Itinerary</h3>
+                    <p>From: <span class="bold" id="summary-from"></span></p>
+                    <p>To: <span class="bold" id="summary-to"></span></p>
+                    <p>Dates: <span class="bold" id="summary-dates"></span></p>
+                    <p>Passengers: <span class="bold" id="summary-adults"></span></p>
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Days: <input type="number" name="days" id="days" readonly="readonly" /></label>
-                    </div>
-                    <div class="form-group">
-                        <label>Nights: <input type="number" name="nights" id="nights" readonly="readonly" /></label>
-                    </div>
-                    <div class="form-group">
-                        <label>Nights Left: <input type="number" name="nightsLeft" id="nightsLeft" readonly="readonly" class="nightsLeft" /></label>
-                    </div>
-                </div>
-                 <div class="form-group">
-                    <label for="adults">Number of adults</label>
-                    <input type="number" name="adults" id="adults" min="1" value="1" />
-                </div>
-            </fieldset>
-
-            <fieldset>
-                <legend>Preferences</legend>
-                <div class="form-group-checkbox">
-                    <label><input type="checkbox" name="roundtrip" id="roundtrip" /> Is it a round trip?</label>
-                </div>
-                <div class="form-group-checkbox">
-                    <label><input type="checkbox" name="transport_only" id="transportOnly" /> Find transport only</label>
-                    <label><input type="checkbox" name="hotels_only" id="hotelsOnly" /> Find hotels only</label>
-                </div>
-                <div class="form-group-checkbox" id="carsBetweenPlacesContainer">
-                    <label><input type="checkbox" name="cars_between_places" id="carsBetweenPlaces" /> Search cars between places</label>
-                </div>
-                <div class="form-group-checkbox">
-                    <label><input type="checkbox" name="trains_between_places" id="trainsBetweenPlaces" /> Search trains between places</label>
-                </div>
-            </fieldset>
-
-            <div id="transportContainer">
-                <fieldset>
-                    <legend>Transportation</legend>
-                    <div class="transportType">
-                        <div id="transportStartDiv" class="form-group">
-                            <label for="transportStart">Transport type start:</label>
-                            <select name="transportStart" id="transportStart">
-                                <option value="trains">Train</option>
-                                <option value="flights">Plane</option>
-                                <option value="cars">Car</option>
-                            </select>
-                        </div>
-                        <div id="carPickupPlace" class="form-group">
-                            <label for="pickuplPlace">Where to pickup car?</label>
-                            <select id="pickuplPlace" name="pickupPlace">
-                                <option value="">All</option>
-                                <option value="airport">Airport</option>
-                                <option value="train_station">Train Station</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="transportType" id="transportEndDiv">
-                        <div class="form-group">
-                            <label for="transportEnd">Transport type end:</label>
-                            <select name="transportEnd" id="transportEnd">
-                                <option value="trains">Train</option>
-                                <option value="flights">Plane</option>
-                                <option value="cars">Car</option>
-                            </select>
-                        </div>
-                        <div id="backTimeContainer" class="form-group">
-                            <label for="backTime">Estimated return time (for car)</label>
-                            <input type="time" name="backTime" id="backTime"/>
-                        </div>
-                        <div id="carReturnPlace" class="form-group">
-                            <label for="returnPlace">Where to return car?</label>
-                            <select id="returnPlace" name="returnPlace">
-                                <option value="">All</option>
-                                <option value="airport">Airport</option>
-                                <option value="train_station">Train Station</option>
-                            </select>
-                        </div>
-                    </div>
-                </fieldset>
             </div>
 
-            <fieldset>
-                <legend>Destinations</legend>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="fromCity">Trip from:</label>
-                        <input type="text" name="fromCity" id="fromCity" placeholder="City" value="Barcelona">
-                    </div>
-                    <div class="form-group">
-                        <label for="fromCountry">Country:</label>
-                        <select id="fromCountry" name="fromCountry">
-                            {% for country in countries %}
-                                <option value="{{ country }}" {% if country == "ES" %} selected="selected" {% endif %}>{{ countries[country] }}</option>
-                            {% endfor %}
-                        </select>
-                        <small>This sets the config file for searching.</small>
-                    </div>
-                </div>
-            </fieldset>
+            <!-- Stepper -->
+            <div class="stepper"></div>
 
-            <div id="placesDiv" style="margin-top:10px;">
-                <fieldset>
-                    <legend>Places to Visit</legend>
-                    <p>Add places you want to visit during your trip.</p>
-                    <small>Last place is where you'll catch return transport back home</small>
-                    <div class="form-group">
-                        <label>Nights Left: <input type="number" name="nightsLeft2" id="nightsLeft2" readonly="readonly" class="nightsLeft" /></label>
-                    </div>
-                    <input type="button" id="placesButton" name="placesButton" value="Add New Place" />
-                    <ul id="placesList"></ul>
-                </fieldset>
+            <!-- Loading Spinner -->
+            <div id="loader" class="loader" style="display: none;"></div>
+
+            <!-- Results Area -->
+            <div class="results-container card">
+                <div id="results-area"></div>
             </div>
 
-            <div class="submit-container">
-                <input type="submit" id="submit" name="submit" value="Search" disabled="disabled" />
+            <!-- Navigation -->
+            <div class="navigation">
+                <button id="prevBtn" style="display: none;">Previous</button>
+                <button id="nextBtn" style="display: none;">Next</button>
             </div>
-        </form>
+        </div>
     </main>
 
     <footer class="footer">
@@ -160,6 +194,5 @@
     </footer>
 
     <script src="{{url_for('static', filename='main.js')}}"></script>
-    <script>updatedTime();</script>
 </body>
 </html>
