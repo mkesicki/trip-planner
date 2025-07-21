@@ -271,7 +271,7 @@ input[type="submit"]:disabled {
     transform: scale(1.1);
 }
 
-.step.active .step-title {
+.step.active .step-title, .step.completed .step-title {
     color: var(--primary-color);
     font-weight: 600;
 }
@@ -284,6 +284,11 @@ input[type="submit"]:disabled {
 .step.completed .step-title {
     color: var(--success-color);
 }
+
+.step.active, .step.completed {
+    cursor: pointer;
+}
+
 
 .stepper::before {
     content: '';

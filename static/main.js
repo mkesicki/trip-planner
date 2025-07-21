@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const state = {
         currentStep: 0,
         tripData: {},
-        steps: []
+        steps: [] // Array of objects: { id, title, results: null | string[] }
     };
 
     // --- DOM ELEMENTS ---
@@ -191,57 +191,80 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const params = new URLSearchParams(formData);
         history.pushState(null, '', '?' + params.toString());
+        startPlanner(Object.fromEntries(params));
+    });
 
-        state.tripData = Object.fromEntries(formData.entries());
-        state.tripData['places[]'] = places;
-        state.tripData['nights[]'] = formData.getAll('nights[]');
-        state.tripData['countries[]'] = formData.getAll('countries[]');
+    stepperContainer.addEventListener('click', e => {
+        const targetStepEl = e.target.closest('.step');
+        if (!targetStepEl) return;
 
-        formSection.style.display = 'none';
-        plannerSection.style.display = 'block';
-        
-        initWizard();
+        const targetStepNumber = parseInt(targetStepEl.dataset.step, 10);
+        const isCompleted = targetStepEl.classList.contains('completed');
+        const isActive = targetStepEl.classList.contains('active');
+
+        if (isCompleted || isActive) {
+            navigateToStep(targetStepNumber);
+        }
     });
 
     function determineSteps() {
         const steps = [];
-        if (!state.tripData.hotels_only) {
-            steps.push({ id: 'main_transport', title: 'Main Transport' });
+        if (state.tripData.hotels_only !== 'on') {
+            let transportIcon = '✈️'; // Default icon
+            switch (state.tripData.transportStart) {
+                case 'trains':
+                    transportIcon = '🚆';
+                    break;
+                case 'cars':
+                    transportIcon = '🚗';
+                    break;
+            }
+            steps.push({ id: 'main_transport', title: 'Main Transport', icon: transportIcon, results: null });
         }
-        if (!state.tripData.transport_only) {
-            steps.push({ id: 'hotels', title: 'Hotels' });
+        if (state.tripData.transport_only !== 'on') {
+            steps.push({ id: 'hotels', title: 'Accommodations', icon: '🏨', results: null });
         }
-        if (!state.tripData.hotels_only && (state.tripData.cars_between_places || state.tripData.trains_between_places)) {
-            steps.push({ id: 'local_transport', title: 'Local Transport' });
+        if (state.tripData.hotels_only !== 'on' && (state.tripData.cars_between_places === 'on' || state.tripData.trains_between_places === 'on')) {
+            steps.push({ id: 'local_transport', title: 'Local Travel', icon: '🚗', results: null });
         }
         state.steps = steps;
     }
 
-    async function fetchStepData(stepId) {
+    async function fetchStepData(stepNumber) {
+        const step = state.steps[stepNumber - 1];
+        if (!step) return null;
+
         showLoader(true);
         resultsArea.innerHTML = '';
         try {
             const response = await fetch('/api/search', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ step: stepId, ...state.tripData }),
+                body: JSON.stringify({ step: step.id, ...state.tripData }),
             });
             if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
             const data = await response.json();
-            renderResults(data.urls);
+            step.results = data.urls; // Cache the results
+            return data.urls;
         } catch (error) {
             console.error('Error fetching search results:', error);
             resultsArea.innerHTML = `<p class="error">Sorry, something went wrong. Please try again later.</p>`;
+            return null;
         } finally {
             showLoader(false);
         }
     }
 
     function renderResults(urls) {
-        if (!urls || urls.length === 0) {
+        if (urls === null) {
+            resultsArea.innerHTML = `<p class="error">Could not load results. Please try again.</p>`;
+            return;
+        }
+        if (urls.length === 0) {
             resultsArea.innerHTML = '<p>No search results found for this step.</p>';
             return;
         }
+
         let html = `<h3>${state.steps[state.currentStep - 1].title} Results</h3>`;
         html += '<p>Your browser might block the "Open All" feature. If so, you may need to allow pop-ups for this site or click each link individually.</p>';
         html += '<button class="open-all-btn">Open All in New Tabs</button>';
@@ -264,9 +287,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         resultsArea.querySelector('.open-all-btn').addEventListener('click', () => {
             urls.forEach((url, index) => {
-                setTimeout(() => {
-                    window.open(url, '_blank');
-                }, index * 200);
+                setTimeout(() => { window.open(url, '_blank'); }, index * 200);
             });
         });
 
@@ -285,14 +306,37 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function updateUrlForStep() {
+        const params = new URLSearchParams(window.location.search);
+        params.set('step', state.currentStep);
+        history.pushState(null, '', '?' + params.toString());
+    }
+
+    function toTitleCase(str) {
+        if (!str) return '';
+        return str.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    }
+
     function updateUI() {
+        // Update Stepper
         stepperContainer.innerHTML = state.steps.map((step, index) => `
-            <div class="step ${index + 1 === state.currentStep ? 'active' : ''} ${index + 1 < state.currentStep ? 'completed' : ''}">
+            <div class="step ${index + 1 === state.currentStep ? 'active' : ''} ${index + 1 < state.currentStep ? 'completed' : ''}" data-step="${index + 1}">
                 <div class="step-number">${index + 1}</div>
                 <div class="step-title">${step.title}</div>
             </div>
         `).join('');
 
+        // Update Summary Card
+        const summaryTitle = document.getElementById('summary-title');
+        const summaryIcon = document.getElementById('summary-icon');
+        const currentStepInfo = state.steps[state.currentStep - 1];
+        
+        if (currentStepInfo) {
+            summaryTitle.textContent = currentStepInfo.title;
+            summaryIcon.textContent = currentStepInfo.icon;
+        }
+
+        // Update Buttons
         prevBtn.style.display = state.currentStep > 1 ? 'inline-block' : 'none';
         nextBtn.style.display = 'inline-block';
         nextBtn.textContent = state.currentStep === state.steps.length ? 'Finish' : 'Next';
@@ -303,9 +347,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    function updateSummary() {
-        document.getElementById('summary-from').textContent = state.tripData.fromCity;
-        document.getElementById('summary-to').textContent = state.tripData['places[]'][state.tripData['places[]'].length - 1];
+    function updateSummaryData() {
+        const places = Array.isArray(state.tripData['places[]']) ? state.tripData['places[]'] : [state.tripData['places[]']];
+        document.getElementById('summary-from').textContent = toTitleCase(state.tripData.fromCity);
+        document.getElementById('summary-to').textContent = toTitleCase(places[places.length - 1]);
         document.getElementById('summary-dates').textContent = `${state.tripData.start.split('T')[0]} to ${state.tripData.end.split('T')[0]}`;
         document.getElementById('summary-adults').textContent = state.tripData.adults;
     }
@@ -314,54 +359,67 @@ document.addEventListener('DOMContentLoaded', () => {
         loader.style.display = show ? 'block' : 'none';
     }
 
-    nextBtn.addEventListener('click', () => {
-        if (state.currentStep >= state.steps.length) {
-            state.currentStep++;
-            updateUI();
+    async function navigateToStep(stepNumber) {
+        if (stepNumber < 1 || stepNumber > state.steps.length + 1) {
             return;
         }
-        state.currentStep++;
-        fetchStepData(state.steps[state.currentStep - 1].id);
-        updateUI();
-    });
-
-    prevBtn.addEventListener('click', () => {
-        if (state.currentStep <= 1) return;
-        state.currentStep--;
-        resultsArea.innerHTML = '<p>Previously generated results are not saved. Click "Next" to search again.</p>';
-        updateUI();
-    });
-
-    function initWizard() {
-        determineSteps();
-        updateSummary();
-        if (state.steps.length > 0) {
-            state.currentStep = 1;
-            fetchStepData(state.steps[0].id);
+        state.currentStep = stepNumber;
+        
+        if (stepNumber > state.steps.length) {
             updateUI();
-        } else {
-            resultsArea.innerHTML = "<p>No searches were configured based on your selections.</p>";
+            updateUrlForStep();
+            return;
         }
+
+        const currentStepData = state.steps[stepNumber - 1];
+        if (currentStepData.results) {
+            renderResults(currentStepData.results);
+        } else {
+            const urls = await fetchStepData(stepNumber);
+            renderResults(urls);
+        }
+        updateUrlForStep();
+        updateUI();
+    }
+
+    nextBtn.addEventListener('click', () => navigateToStep(state.currentStep + 1));
+    prevBtn.addEventListener('click', () => navigateToStep(state.currentStep - 1));
+
+    function startPlanner(tripData) {
+        state.tripData = tripData;
+        // Ensure array-like fields are actually arrays
+        ['places[]', 'nights[]', 'countries[]'].forEach(key => {
+            if (state.tripData[key] && !Array.isArray(state.tripData[key])) {
+                state.tripData[key] = [state.tripData[key]];
+            }
+        });
+
+        formSection.style.display = 'none';
+        plannerSection.style.display = 'block';
+
+        determineSteps();
+        updateSummaryData();
     }
     
     function handlePageLoad() {
         const params = new URLSearchParams(window.location.search);
         if (params.has('start') && params.has('end')) {
             const tripDataFromUrl = {};
-            const keys = [...new Set(params.keys())];
+            for (const [key, value] of params.entries()) {
+                if (key.endsWith('[]')) {
+                    if (!tripDataFromUrl[key]) tripDataFromUrl[key] = [];
+                    tripDataFromUrl[key].push(value);
+                } else if (key !== 'step') {
+                    tripDataFromUrl[key] = value;
+                }
+            }
             
-            keys.forEach(key => {
-                const allValues = params.getAll(key);
-                tripDataFromUrl[key] = key.endsWith('[]') ? allValues : allValues[0];
-            });
-            state.tripData = tripDataFromUrl;
+            startPlanner(tripDataFromUrl);
+            const targetStep = parseInt(params.get('step'), 10) || 1;
+            navigateToStep(targetStep);
 
-            formSection.style.display = 'none';
-            plannerSection.style.display = 'block';
-            
-            initWizard();
         } else {
-            updatedTime();
+            updatedTime(); // Initialize form state if no params
         }
     }
 
