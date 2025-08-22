@@ -6,8 +6,9 @@ class Google:
 
     def parse(self, query: SearchQuery):
         start_date = query.start_date.strftime("%Y-%m-%d")
-
-        query_string = f"Flights to {query.to_city} from {query.from_city} on {start_date}"
+        from_city =  query.from_city
+        to_city =  query.to_city
+        query_string = f"Flights to {to_city} from {from_city} on {start_date}"
 
         if query.round_trip:
             end_date = query.end_date.strftime("%Y-%m-%d")

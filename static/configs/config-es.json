@@ -35,7 +35,7 @@
             "type": "parseWeb",
             "company" : "Vueling",
             "airportCode" : "IATA",
-            "dateFormat" : "%d/%m/%Y",
+            "dateFormat" : "%Y%m%d",
             "params" : {
                 "cookiesAccept" : "onetrust-accept-btn-handler",
                 "departure" :  "originInput",
