@@ -10,7 +10,7 @@ def getGeocodeDetails(place : str) -> dict:
 
         params = {
             "address": place,
-            "key": os.environ['Google_API_Key']
+            "key": os.environ['GOOGLE_API_KEY']
         }
 
         r = requests.get(url, params = params)

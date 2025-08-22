@@ -12,3 +12,5 @@ langchain==0.3.26
 langchain-openai==0.3.27
 openai==1.93.0
 playwright==1.53.0
+mcp==1.12.3
+fastmcp==2.11.2
