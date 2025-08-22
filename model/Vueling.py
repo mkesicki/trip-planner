@@ -22,9 +22,12 @@ class Vueling:
         time.sleep(10)
 
         # accept cookies
-        if "cookiesAccept" in self.config:
-            button = browser.find_element(By.ID, self.config.get("cookiesAccept"))
-            browser.execute_script("arguments[0].click();", button)
+        try:
+            if "cookiesAccept" in self.config:
+                button = browser.find_element(By.ID, self.config.get("cookiesAccept"))
+                browser.execute_script("arguments[0].click();", button)
+        except:
+            pass
 
         departure = browser.find_element(By.ID, self.config.get("departure"))
         departure.send_keys(query.from_city)
