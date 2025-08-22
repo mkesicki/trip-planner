@@ -84,7 +84,7 @@ def insertPage(city, country, page):
 
     token = get_token()
 
-    sectionId = os.environ['OneNote_Section_Id']
+    sectionId = os.environ['ONE_NOTE_SECTION_ID']
 
     headers = {'Authorization': 'Bearer ' + token}
 
