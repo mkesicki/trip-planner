@@ -70,6 +70,11 @@
                     <div class="form-group-checkbox">
                         <label><input type="checkbox" name="trains_between_places" id="trainsBetweenPlaces" /> Search trains between places</label>
                     </div>
+                    {% if n8n_enabled %}
+                    <div class="form-group-checkbox">
+                        <label><input type="checkbox" name="search_attractions" id="searchAttractions" data-webhook-url="{{ n8n_webhook_url }}" data-token="{{ n8n_token }}" /> Search attractions in places</label>
+                    </div>
+                    {% endif %}
                 </fieldset>
 
                 <div id="transportContainer">
