@@ -149,7 +149,7 @@ def run_searches_in_parallel(parsers_to_run: list) -> list:
             result_url = future.result()  # This will block until the specific future is complete
             if result_url:
                 urls.append(result_url)
-                
+
     logging.info("--- All parallel searches completed ---")
     return urls
 
@@ -173,7 +173,7 @@ def _get_transport_parsers_for_type(query_template: SearchQuery, config: dict, t
 def get_main_transport_parsers(trip: TripRequest, config: dict) -> list[Parser]:
     """Gathers main transport Parser objects."""
     logging.info("--- Preparing main transport search ---")
-    
+
     if not trip.places:
         logging.warning("No places to visit provided. Cannot search for main transport.")
         return []
@@ -284,6 +284,33 @@ def get_hotel_parsers(trip: TripRequest, config: dict) -> list[Parser]:
             hotel_checkin = hotel_checkout
     return parsers
 
+import threading
+
+def send_attractions_webhook(trip_request: TripRequest):
+    """Sends a webhook request to N8N to search for attractions."""
+    logging.info("--- Sending attractions webhook ---")
+    n8n_webhook_url = os.environ.get("N8N_WEBHOOK_URL")
+    n8n_token = os.environ.get("N8N_TOKEN")
+
+    if not n8n_webhook_url or not n8n_token:
+        logging.warning("N8N_WEBHOOK_URL or N8N_TOKEN not set. Cannot send attractions webhook.")
+        return
+
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': n8n_token
+    }
+    
+    places_data = [
+        {"city": place.place, "country": countries.get(place.country)} for place in trip_request.places
+    ]
+
+    try:
+        requests.post(n8n_webhook_url, headers=headers, json=places_data, timeout=10)
+        logging.info("Successfully sent attractions webhook.")
+    except requests.exceptions.RequestException as e:
+        logging.error(f"Failed to send attractions webhook: {e}")
+
 # --- Routes ---
 @app.route("/login")
 def login():
@@ -307,7 +334,10 @@ def callback():
 @app.route("/")
 def start():
     """Renders the main single-page application."""
-    return render_template('index.html', countries=countries)
+    n8n_enabled = os.environ.get("N8N_ENABLED", "false").lower() == "true"
+    n8n_webhook_url = os.environ.get("N8N_WEBHOOK_URL") if n8n_enabled else None
+    n8n_token = os.environ.get("N8N_TOKEN", "")
+    return render_template('index.html', countries=countries, n8n_enabled=n8n_enabled, n8n_webhook_url=n8n_webhook_url, n8n_token=n8n_token)
 
 @app.route("/api/search", methods=['POST'])
 def api_search():
@@ -317,6 +347,10 @@ def api_search():
         step = data.get('step')
         trip_request = parse_request(data)
         config = load_config(trip_request.from_country)
+
+        if data.get('search_attractions') == 'on' and (step == 'main_transport' or (step == 'hotels' and data.get('hotels_only') == 'on')):
+            webhook_thread = threading.Thread(target=send_attractions_webhook, args=(trip_request,))
+            webhook_thread.start()
 
         parsers = []
         if step == 'main_transport':

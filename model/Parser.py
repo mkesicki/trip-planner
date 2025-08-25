@@ -2,6 +2,7 @@ import logging
 import airportsdata
 import webbrowser
 import importlib.util
+import unicodedata
 
 from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException
 from country_list import countries_for_language
@@ -58,8 +59,12 @@ class Parser:
         return None
 
     def findAirportCode(self, country: str, city: str, type: str = "IATA") -> str:
+
         airports = airportsdata.load(type)
+        normalized = unicodedata.normalize('NFD', city.lower())
+        city_safe =  normalized.encode('ascii', 'ignore').decode('ascii')
         for code, airport in airports.items():
-            if airport.get("city").lower() == city.lower() and airport.get("country").lower() == country.lower():
+            if (airport.get("city").lower() == city.lower() or city_safe in airport.get("name").lower()) and airport.get("country").lower() == country.lower():
                 return code
         return ""
+    

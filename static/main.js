@@ -192,6 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const params = new URLSearchParams(formData);
         history.pushState(null, '', '?' + params.toString());
         startPlanner(Object.fromEntries(params));
+        navigateToStep(1); // Automatically navigate to the first step
     });
 
     stepperContainer.addEventListener('click', e => {
