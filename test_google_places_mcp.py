@@ -2,7 +2,7 @@
 import asyncio
 import os
 from fastmcp import Client
-from google_places_mcp_server import mcp
+from mcp_server import mcp
 
 def unwrap_tool_result(result):
     """
