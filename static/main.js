@@ -383,7 +383,44 @@ document.addEventListener('DOMContentLoaded', () => {
         updateUI();
     }
 
-    nextBtn.addEventListener('click', () => navigateToStep(state.currentStep + 1));
+    function playFanfare() {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const notes = [
+            { freq: 523.25, start: 0.00, dur: 0.12 },  // C5
+            { freq: 659.25, start: 0.13, dur: 0.12 },  // E5
+            { freq: 783.99, start: 0.26, dur: 0.12 },  // G5
+            { freq: 783.99, start: 0.39, dur: 0.10 },  // G5
+            { freq: 1046.5, start: 0.50, dur: 0.50 },  // C6 (held)
+        ];
+        notes.forEach(({ freq, start, dur }) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.type = 'square';
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0, ctx.currentTime + start);
+            gain.gain.linearRampToValueAtTime(0.25, ctx.currentTime + start + 0.01);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + dur);
+            osc.start(ctx.currentTime + start);
+            osc.stop(ctx.currentTime + start + dur + 0.05);
+        });
+    }
+
+    function triggerCelebration() {
+        playFanfare();
+        const end = Date.now() + 3000;
+        (function burst() {
+            confetti({ particleCount: 60, angle: 60, spread: 55, origin: { x: 0 } });
+            confetti({ particleCount: 60, angle: 120, spread: 55, origin: { x: 1 } });
+            if (Date.now() < end) requestAnimationFrame(burst);
+        })();
+    }
+
+    nextBtn.addEventListener('click', () => {
+        if (state.currentStep === state.steps.length) triggerCelebration();
+        navigateToStep(state.currentStep + 1);
+    });
     prevBtn.addEventListener('click', () => navigateToStep(state.currentStep - 1));
 
     function startPlanner(tripData) {
