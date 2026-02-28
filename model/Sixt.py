@@ -47,7 +47,6 @@ class Sixt:
         # page.wait_for_load_state('networkidle')
 
         button = page.wait_for_selector('button:has-text("I AGREE")', timeout=3000)
-        print(button)
         if button and button.is_visible():
             button.click()
 

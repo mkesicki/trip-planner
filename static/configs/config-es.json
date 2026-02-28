@@ -31,23 +31,13 @@
 
     "flights": [
         {
-            "url" : "https://vueling.com/",
-            "type": "parseWeb",
+            "url" : "https://global.vueling.com/es/search?origins={departure}&destinations={arrival}&departureDate={dateFrom}&returnDate={dateBack}&isOneWay=false&adult={adults}&utm_source=vuelingcompicker&currency=EUR&residency=ES",
+            "urlOneWay" : "https://global.vueling.com/es/search?origins={departure}&destinations={arrival}&departureDate={dateFrom}&isOneWay=true&adult={adults}&utm_source=vuelingcompicker&currency=EUR&residency=ES",
+            "type" : "browser",
             "company" : "Vueling",
             "airportCode" : "IATA",
-            "dateFormat" : "%Y%m%d",
-            "params" : {
-                "cookiesAccept" : "onetrust-accept-btn-handler",
-                "departure" :  "originInput",
-                "arrival" : "destinationInput",
-                "dateFrom" : "outboundDate",
-                "dateBack" : "returnDate",
-                "adults" : "adultsIncrease",
-                "passengersSelector" : "passengersInputLabel",
-                "submit" : "btnSubmitHomeSearcher",
-                "oneWay" : "vy-switch_button",
-                "dateForward" : "nextButtonCalendar"
-            }
+            "dateFormat" : "%Y-%m-%d",
+            "queryParams" : ""
         }
     ],
 

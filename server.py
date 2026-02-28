@@ -300,7 +300,7 @@ def send_attractions_webhook(trip_request: TripRequest):
         'Content-Type': 'application/json',
         'Authorization': n8n_token
     }
-    
+
     places_data = [
         {"city": place.place, "country": countries.get(place.country)} for place in trip_request.places
     ]
